@@ -26,11 +26,18 @@ You need a Garmin account with weight data to use this repository.
 To use the code, you need to create a `.env` file in the root directory of this repository.
 The `.env` file should contain the following variables:
 ```bash
-GARMIN_USERNAME=your_garmin_username
-GARMIN_PASSWORD=your_garmin_password
+GARMIN_USERNAME=<your_garmin_username>
+GARMIN_PASSWORD=<your_garmin_password>
 ```
 
-After creating the `.env` file, you can run the code with the following command to downloaded and process the weight data:
+After creating the `.env` file, you can run the code with the following command to downloaded the weight data:
+```bash
+poetry run python download_weight_data.py
+```
+
+This stores the weight data in a file called `weight.json`.
+
+Using this data, you can then process the weight data with the following command:
 ```bash
 poetry run python process_weight_data.py
 ```
@@ -40,4 +47,9 @@ This stores the processed weight data in a file called `weight.csv`.
 You can then plot the data with the following command:
 ```bash
 poetry run python plot.py
+```
+
+You can specify your optimal weekly weight change for bulking (positive) or cutting (negative) in the `.env` file:
+```bash
+TARGET_WEEKLY_CHANGE_IN_GRAMS=250
 ```
