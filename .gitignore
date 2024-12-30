@@ -1,4 +1,5 @@
 .env
 .venv
-weight.csv
+*.csv
+*.json
 *.png
