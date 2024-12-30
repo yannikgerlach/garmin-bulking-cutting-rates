@@ -1,6 +1,5 @@
 from datetime import date
 import os
-import pandas as pd
 import json
 
 import garminconnect
@@ -12,12 +11,8 @@ garmin.login()
 GARTH_HOME = os.getenv("GARTH_HOME", "~/.garth")
 garmin.garth.dump(GARTH_HOME)
 
-
-startdate = date(2024, 11, 1)
-startdate = startdate.isoformat()
-
-enddate = date.today()
-enddate = enddate.isoformat()
+startdate = date(2024, 11, 1).isoformat() # TODO: allow user to specify start date
+enddate = date.today().isoformat()
 
 data = garmin.get_weigh_ins(startdate, enddate)
 assert data is not None

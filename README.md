@@ -32,24 +32,29 @@ GARMIN_PASSWORD=<your_garmin_password>
 
 After creating the `.env` file, you can run the code with the following command to downloaded the weight data:
 ```bash
-poetry run python download_weight_data.py
+poetry run python scripts/download.py
 ```
 
 This stores the weight data in a file called `weight.json`.
 
 Using this data, you can then process the weight data with the following command:
 ```bash
-poetry run python process_weight_data.py
+poetry run python scripts/process.py
 ```
 
 This stores the processed weight data in a file called `weight.csv`.
 
 You can then plot the data with the following command:
 ```bash
-poetry run python plot.py
+poetry run python scripts/plot.py
 ```
 
 You can specify your optimal weekly weight change for bulking (positive) or cutting (negative) in the `.env` file:
 ```bash
 TARGET_WEEKLY_CHANGE_IN_GRAMS=250
+```
+
+To run everything in one go, you can use the following command:
+```terminal
+/bin/bash run.sh
 ```
