@@ -25,15 +25,15 @@ fig.savefig("weight.png")
 
 fig, ax = plt.subplots(figsize=(12, 6))
 
-sns.lineplot(data=df, x="date", y="weight_in_grams_7d_weekly_change", marker='o', ax=ax, label="7d Weekly Change")
-line_7d_change = ax.lines[-1]
-for x_val, y_val in zip(df["date"], df["weight_in_grams_7d_weekly_change"]):
-    ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_7d_change.get_color())
-
 sns.lineplot(data=df, x="date", y="weight_in_grams_14d_weekly_change", marker='o', ax=ax, label="14d Weekly Change")
 line_14d_change = ax.lines[-1]
 for x_val, y_val in zip(df["date"], df["weight_in_grams_14d_weekly_change"]):
     ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_14d_change.get_color())
+
+sns.lineplot(data=df, x="date", y="weight_in_grams_7d_weekly_change", marker='o', ax=ax, label="7d Weekly Change")
+line_7d_change = ax.lines[-1]
+for x_val, y_val in zip(df["date"], df["weight_in_grams_7d_weekly_change"]):
+    ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_7d_change.get_color())
     
 # add horizontal line at optimal weekly rate (load from environment variable, TARGET_WEEKLY_CHANGE_IN_GRAMS)
 target_weekly_change = int(os.getenv("TARGET_WEEKLY_CHANGE_IN_GRAMS", 0))
