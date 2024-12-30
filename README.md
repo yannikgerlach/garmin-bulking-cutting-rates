@@ -1,19 +1,15 @@
-# Garmin Weight Analysis
+# Garmin Weight Analysis for Bulking and Cutting
 Applications like Garmin Connect provide various analysis tools for your weight data.
 However, these tools are limited in the time range they can display.
 For example, Garmin Connect can only display the weight average for the last day, 7 days, 4 weeks and year.
-As a result, it's unsuitable for effectively comparing your weight change to optimal bulking or cutting rates.
-
-You can estimate these rates with the following calculators:
-- [Bulking Calculator](https://macrofactorapp.com/bulking-calculator/)
-- [Cutting Calculator](https://macrofactorapp.com/cutting-calculator/)
+As a result, it's unsuitable for effectively comparing your weight change to optimal [bulking rates](https://macrofactorapp.com/bulking-calculator/) or [cutting rates](https://macrofactorapp.com/cutting-calculator/).
 
 The code calculates weekly and two-weekly averages of the weight data.
 It also calculates the weight change per week based on the weekly and two-weekly averages, respectively.
 You can use these to more accurately track your weight over time, 
 spotting trends and changes more easily and smoothing out daily fluctuations.
 
-This repository contains code for analysing your Garmin weight data in a more flexible way.
+This repository contains code for analyzing your Garmin weight data in a more flexible way.
 The weight data gets loaded with the [garminconnect](https://pypi.org/project/garminconnect/) package.
 The data is then analysed with the [pandas](https://pandas.pydata.org/) package.
 
@@ -40,6 +36,7 @@ poetry run python process_weight_data.py
 ```
 
 This stores the processed weight data in a file called `weight.csv`.
+
 You can then plot the data with the following command:
 ```bash
 poetry run python plot.py
