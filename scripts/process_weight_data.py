@@ -73,6 +73,23 @@ def process_weight_data(data: dict) -> pd.DataFrame:
 
 
 def add_target_weight_change(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Adds target weight change and target weight columns to the DataFrame.
+
+    This function calculates the target weight change based on a weekly change percentage
+    obtained from an environment variable "TARGET_WEEKLY_CHANGE_PERCENTAGE". It then adds
+    a column "target_weight_change" to the DataFrame, which represents the weekly change
+    in weight. Additionally, it adds a column "target_weight" that represents the target
+    weight for the next week, shifted by one week to align with the current week's target.
+
+    Args:
+        df (pd.DataFrame): A DataFrame containing a column "weight_in_grams_14d_weekly" 
+                           with weight data.
+
+    Returns:
+        pd.DataFrame: The input DataFrame with added columns "target_weight_change" and 
+                      "target_weight".
+    """
     weekly_change_percentage = float(os.getenv("TARGET_WEEKLY_CHANGE_PERCENTAGE", 0.0))
     df["target_weight_change"] = (df["weight_in_grams_14d_weekly"] * weekly_change_percentage).round().astype(int)
     # add a column for the target weight for the next week (and shift it by 1 so it's the target for the current week)
