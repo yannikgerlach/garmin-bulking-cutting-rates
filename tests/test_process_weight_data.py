@@ -3,6 +3,8 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 from scripts.process_weight_data import add_moving_average_and_change
 from scripts.process_weight_data import add_moving_average_and_change, process_weight_data
+from scripts.process_weight_data import add_moving_average_and_change, process_weight_data, add_target_weight_change
+import os
 
 class TestAddMovingAverageAndChange(unittest.TestCase):
     def setUp(self):
@@ -79,3 +81,29 @@ class TestProcessWeightData(unittest.TestCase):
 
         result_df = process_weight_data(data)
         assert_frame_equal(result_df, expected_df, check_freq=False, check_names=False)
+
+class TestAddTargetWeightChange(unittest.TestCase):
+    def setUp(self):
+        data = {
+            "date": pd.date_range(start="2023-01-01", periods=30, freq="D"),
+            "weight_in_grams_14d_weekly": [70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+        }
+        self.df = pd.DataFrame(data)
+        self.df.set_index("date", inplace=True)
+
+    def test_add_target_weight_change(self):
+        os.environ["TARGET_WEEKLY_CHANGE_PERCENTAGE"] = "0.05"  # 5% change
+        
+        expected_target_weight_change = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5] 
+        expected_target_weight = [70, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 96, 97, 98, 99, 100, 101, 102, 103]
+
+        assert "target_weight_change" not in self.df.columns
+        assert "target_weight" not in self.df.columns
+        
+        result_df = add_target_weight_change(self.df)
+        
+        assert "target_weight_change" in result_df.columns
+        assert "target_weight" in result_df.columns
+        
+        assert result_df["target_weight_change"].tolist() == expected_target_weight_change
+        assert result_df["target_weight"].tolist() == expected_target_weight
