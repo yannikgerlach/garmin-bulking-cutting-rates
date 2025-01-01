@@ -93,6 +93,9 @@ def add_target_weight_change(df: pd.DataFrame) -> pd.DataFrame:
     weekly_change_percentage = float(os.getenv("TARGET_WEEKLY_CHANGE_PERCENTAGE", 0.0))
     df["target_weight_change"] = (df["weight_in_grams_14d_weekly"] * weekly_change_percentage).round().astype(int)
     # add a column for the target weight for the next week (and shift it by 1 so it's the target for the current week)
+    # add row to df for the next week's target weight (with the next weeeks' date)
+    df = pd.concat([df, pd.DataFrame(index=pd.date_range(df.index[-1] + pd.DateOffset(days=1), periods=1, freq="W", name="date"))])
+    # fill in the target weight for the next week
     first_value = df["weight_in_grams_14d_weekly"].iloc[0]
     df["target_weight"] = (df["weight_in_grams_14d_weekly"] + df["target_weight_change"]).shift(1).fillna(value=first_value).astype(int)
     return df
