@@ -49,9 +49,14 @@ You can then plot the data with the following command:
 poetry run python scripts/plot.py
 ```
 
-You can specify your optimal weekly weight change for bulking (positive) or cutting (negative) in the `.env` file:
+You can specify your targeted weekly weight change rate for bulking (positive) or cutting (negative) in the `.env` file:
 ```bash
-TARGET_WEEKLY_CHANGE_IN_GRAMS=250
+TARGET_WEEKLY_CHANGE_PERCENTAGE=<your_targeted_weekly_change_percentage>
+```
+
+For example, if you want to gain 0.5% of your body weight per week, you can set the following variable:
+```bash
+TARGET_WEEKLY_CHANGE_PERCENTAGE=0.005
 ```
 
 To run everything in one go, you can use the following command:
