@@ -17,6 +17,11 @@ sns.lineplot(data=df, x="date", y="weight_in_grams_7d_weekly", marker='o', ax=ax
 line_7d = ax.lines[-1]
 for x_val, y_val in zip(df["date"], df["weight_in_grams_7d_weekly"]):
     ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_7d.get_color())
+    
+# add target weight for each week (column target_weight) as points (without lines)
+sns.scatterplot(data=df, x="date", y="target_weight", color="red", ax=ax, label="Target Weekly")
+for x_val, y_val in zip(df["date"], df["target_weight"]):
+    ax.text(x_val, y_val, y_val, ha="center", va="bottom", color="red")
 
 # save the plot
 fig.savefig("weight.png")
@@ -35,11 +40,11 @@ line_7d_change = ax.lines[-1]
 for x_val, y_val in zip(df["date"], df["weight_in_grams_7d_weekly_change"]):
     ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_7d_change.get_color())
     
-# add horizontal line at optimal weekly rate (load from environment variable, TARGET_WEEKLY_CHANGE_IN_GRAMS)
-target_weekly_change = int(os.getenv("TARGET_WEEKLY_CHANGE_IN_GRAMS", 0))
-ax.axhline(y=target_weekly_change, color='r', linestyle='--', label="Target Weekly Change")
-# add text
-ax.text(df["date"].iloc[-1], target_weekly_change, target_weekly_change, ha="left", va="bottom", color="r")
+# add line plot for target weekly change (column target_weight_change)
+sns.lineplot(data=df, x="date", y="target_weight_change", marker='o', ax=ax, label="Target Weekly Change", color="red")
+line_target = ax.lines[-1]
+for x_val, y_val in zip(df["date"], df["target_weight_change"]):
+    ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_target.get_color())
 
 # save the plot
 fig.savefig("weight_change.png")
