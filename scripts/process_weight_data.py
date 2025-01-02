@@ -78,7 +78,7 @@ def filter_df_to_weekly_changes(df: pd.DataFrame) -> pd.DataFrame:
     # only show the rows where the weekly change is not null
     df = df[df["weight_in_grams_14d_weekly_change"].notnull()]
     
-    return df.astype(int)
+    return df.round().astype(int)
 
 
 def add_target_weight_change(df: pd.DataFrame, window: int) -> pd.DataFrame:
@@ -88,9 +88,9 @@ def add_target_weight_change(df: pd.DataFrame, window: int) -> pd.DataFrame:
     
     weekly_change_percentage = float(os.getenv("TARGET_WEEKLY_CHANGE_PERCENTAGE", 0.0))   
     df_without_last_row = df.iloc[:-1]
-    df[target_weight_change_column] = (df_without_last_row[column] * weekly_change_percentage).astype(int)
+    df[target_weight_change_column] = (df_without_last_row[column] * weekly_change_percentage).round().astype(int)
 
     first_value = df[column].iloc[0]
-    df[target_weight_column] = (df_without_last_row[column] + df[target_weight_change_column]).shift(1).fillna(value=first_value).astype(int)
+    df[target_weight_column] = (df_without_last_row[column] + df[target_weight_change_column]).shift(1).fillna(value=first_value).round().astype(int)
 
     return df
