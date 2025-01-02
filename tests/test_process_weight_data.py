@@ -1,37 +1,87 @@
+import os
 import unittest
+
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from scripts.process_weight_data import add_moving_average_and_change, filter_df_to_weekly_changes
-from scripts.process_weight_data import add_moving_average_and_change, process_weight_data
-from scripts.process_weight_data import add_moving_average_and_change, process_weight_data, add_target_weight_change
-import os
+
+from scripts.process_weight_data import (
+    add_moving_average_and_change,
+    add_target_weight_change,
+    filter_df_to_weekly_changes,
+    process_weight_data,
+)
+
 
 class TestAddMovingAverageAndChange(unittest.TestCase):
     def setUp(self):
         data = {
             "date": pd.date_range(start="2023-01-01", periods=30, freq="D"),
-            "weight_in_grams": [70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+            "weight_in_grams": [
+                70,
+                71,
+                72,
+                73,
+                74,
+                75,
+                76,
+                77,
+                78,
+                79,
+                80,
+                81,
+                82,
+                83,
+                84,
+                85,
+                86,
+                87,
+                88,
+                89,
+                90,
+                91,
+                92,
+                93,
+                94,
+                95,
+                96,
+                97,
+                98,
+                99,
+            ],
         }
         self.df = pd.DataFrame(data)
         self.df.set_index("date", inplace=True)
 
     def test_add_moving_average_and_change_7d(self):
         expected_df = self.df.copy()
-        expected_df["weight_in_grams_7d"] = expected_df["weight_in_grams"].rolling(window=7).mean()
-        expected_df["weight_in_grams_7d_weekly"] = expected_df["weight_in_grams_7d"].resample("W").last()
-        expected_df["weight_in_grams_7d_weekly_change"] = expected_df["weight_in_grams_7d_weekly"].diff(periods=7)
+        expected_df["weight_in_grams_7d"] = (
+            expected_df["weight_in_grams"].rolling(window=7).mean()
+        )
+        expected_df["weight_in_grams_7d_weekly"] = (
+            expected_df["weight_in_grams_7d"].resample("W").last()
+        )
+        expected_df["weight_in_grams_7d_weekly_change"] = expected_df[
+            "weight_in_grams_7d_weekly"
+        ].diff(periods=7)
 
         add_moving_average_and_change(self.df, "weight_in_grams", 7)
         assert_frame_equal(self.df, expected_df)
 
     def test_add_moving_average_and_change_14d(self):
         expected_df = self.df.copy()
-        expected_df["weight_in_grams_14d"] = expected_df["weight_in_grams"].rolling(window=14).mean()
-        expected_df["weight_in_grams_14d_weekly"] = expected_df["weight_in_grams_14d"].resample("W").last()
-        expected_df["weight_in_grams_14d_weekly_change"] = expected_df["weight_in_grams_14d_weekly"].diff(periods=7)
+        expected_df["weight_in_grams_14d"] = (
+            expected_df["weight_in_grams"].rolling(window=14).mean()
+        )
+        expected_df["weight_in_grams_14d_weekly"] = (
+            expected_df["weight_in_grams_14d"].resample("W").last()
+        )
+        expected_df["weight_in_grams_14d_weekly_change"] = expected_df[
+            "weight_in_grams_14d_weekly"
+        ].diff(periods=7)
 
         add_moving_average_and_change(self.df, "weight_in_grams", 14)
         assert_frame_equal(self.df, expected_df)
+
 
 class TestProcessWeightData(unittest.TestCase):
     def test_process_weight_data(self):
@@ -66,7 +116,7 @@ class TestProcessWeightData(unittest.TestCase):
                 {"summaryDate": "2023-01-27", "allWeightMetrics": [{"weight": 96}]},
                 {"summaryDate": "2023-01-28", "allWeightMetrics": [{"weight": 97}]},
                 {"summaryDate": "2023-01-29", "allWeightMetrics": [{"weight": 98}]},
-                {"summaryDate": "2023-01-30", "allWeightMetrics": [{"weight": 99}]}
+                {"summaryDate": "2023-01-30", "allWeightMetrics": [{"weight": 99}]},
             ]
         }
 
@@ -75,39 +125,134 @@ class TestProcessWeightData(unittest.TestCase):
             "weight_in_grams_7d_weekly": [88, 95],
             "weight_in_grams_7d_weekly_change": [7, 7],
             "weight_in_grams_14d_weekly": [84, 92],
-            "weight_in_grams_14d_weekly_change": [7, 7]
+            "weight_in_grams_14d_weekly_change": [7, 7],
         }
-        expected_df = pd.DataFrame(expected_data, index=pd.to_datetime(["2023-01-22", "2023-01-29"])).astype("int64")
+        expected_df = pd.DataFrame(
+            expected_data, index=pd.to_datetime(["2023-01-22", "2023-01-29"])
+        ).astype("int64")
 
         result_df = process_weight_data(data)
         result_df = filter_df_to_weekly_changes(result_df)
         assert_frame_equal(result_df, expected_df, check_freq=False, check_names=False)
 
+
 class TestAddTargetWeightChange(unittest.TestCase):
     def setUp(self):
         data = {
             "date": pd.date_range(start="2023-01-01", periods=30, freq="D"),
-            "weight_in_grams_14d_weekly": [70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+            "weight_in_grams_14d_weekly": [
+                70,
+                71,
+                72,
+                73,
+                74,
+                75,
+                76,
+                77,
+                78,
+                79,
+                80,
+                81,
+                82,
+                83,
+                84,
+                85,
+                86,
+                87,
+                88,
+                89,
+                90,
+                91,
+                92,
+                93,
+                94,
+                95,
+                96,
+                97,
+                98,
+                99,
+            ],
         }
         self.df = pd.DataFrame(data)
         self.df.set_index("date", inplace=True)
 
     def test_add_target_weight_change(self):
         os.environ["TARGET_WEEKLY_CHANGE_PERCENTAGE"] = "0.05"  # 5% change
-        
-        expected_target_weight_change = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5] 
-        expected_target_weight = [70, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 96, 97, 98, 99, 100, 101, 102, 103]
+
+        expected_target_weight_change = [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+        ]
+        expected_target_weight = [
+            70,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+        ]
 
         assert "target_weight_change_14d" not in self.df.columns
         assert "target_weight_14d" not in self.df.columns
-        
+
         result_df = add_target_weight_change(self.df, window=14)
-        
+
         assert "target_weight_change_14d" in result_df.columns
         assert "target_weight_14d" in result_df.columns
-        
+
         # for change column, remove last row and cast to int
-        change_column = result_df["target_weight_change_14d"][ :-1].astype(int)
+        change_column = result_df["target_weight_change_14d"][:-1].astype(int)
         assert change_column.tolist() == expected_target_weight_change
-        
+
         assert result_df["target_weight_14d"].tolist() == expected_target_weight
