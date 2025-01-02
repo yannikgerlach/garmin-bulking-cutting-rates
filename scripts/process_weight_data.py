@@ -1,5 +1,6 @@
-import pandas as pd
 import os
+
+import pandas as pd
 
 
 def add_moving_average_and_change(df: pd.DataFrame, column: str, window: int) -> None:
@@ -26,12 +27,17 @@ def add_moving_average_and_change(df: pd.DataFrame, column: str, window: int) ->
     """
     df[f"{column}_{window}d"] = df[column].rolling(window=window).mean()
     df[f"{column}_{window}d_weekly"] = df[f"{column}_{window}d"].resample("W").last()
-    df[f"{column}_{window}d_weekly_change"] = df[f"{column}_{window}d_weekly"].diff(periods=7)
-    
-    
+    df[f"{column}_{window}d_weekly_change"] = df[f"{column}_{window}d_weekly"].diff(
+        periods=7
+    )
+
+
 def create_weight_data_frame(data: dict) -> pd.DataFrame:
     data_weight = data["dailyWeightSummaries"]
-    daily_weights = [(d["summaryDate"], round(d["allWeightMetrics"][0]["weight"])) for d in data_weight]
+    daily_weights = [
+        (d["summaryDate"], round(d["allWeightMetrics"][0]["weight"]))
+        for d in data_weight
+    ]
     df = pd.DataFrame(daily_weights, columns=["date", "weight_in_grams"])
 
     # fill in missing dates
@@ -39,7 +45,7 @@ def create_weight_data_frame(data: dict) -> pd.DataFrame:
     df.set_index("date", inplace=True)
     df = df.resample("D").asfreq()
     df["weight_in_grams"] = df["weight_in_grams"].interpolate(method="pad").astype(int)
-    
+
     return df
 
 
@@ -64,20 +70,22 @@ def process_weight_data(data: dict) -> pd.DataFrame:
         pd.DataFrame: A DataFrame indexed by date with integer weight changes and averages for analysis.
     """
     df = create_weight_data_frame(data)
-    
+
     add_moving_average_and_change(df=df, column="weight_in_grams", window=7)
     add_moving_average_and_change(df=df, column="weight_in_grams", window=14)
-    
+
     return df
 
 
 def filter_df_to_weekly_changes(df: pd.DataFrame) -> pd.DataFrame:
     # remove weight in grams columns
-    df = df.drop(columns=["weight_in_grams", "weight_in_grams_7d", "weight_in_grams_14d"])
+    df = df.drop(
+        columns=["weight_in_grams", "weight_in_grams_7d", "weight_in_grams_14d"]
+    )
 
     # only show the rows where the weekly change is not null
     df = df[df["weight_in_grams_14d_weekly_change"].notnull()]
-    
+
     return df.round().astype(int)
 
 
@@ -85,12 +93,22 @@ def add_target_weight_change(df: pd.DataFrame, window: int) -> pd.DataFrame:
     column = f"weight_in_grams_{window}d_weekly"
     target_weight_change_column = f"target_weight_change_{window}d"
     target_weight_column = f"target_weight_{window}d"
-    
-    weekly_change_percentage = float(os.getenv("TARGET_WEEKLY_CHANGE_PERCENTAGE", 0.0))   
+
+    weekly_change_percentage = float(
+        os.getenv("TARGET_WEEKLY_CHANGE_PERCENTAGE", "0.0")
+    )
     df_without_last_row = df.iloc[:-1]
-    df[target_weight_change_column] = (df_without_last_row[column] * weekly_change_percentage).round().astype(int)
+    df[target_weight_change_column] = (
+        (df_without_last_row[column] * weekly_change_percentage).round().astype(int)
+    )
 
     first_value = df[column].iloc[0]
-    df[target_weight_column] = (df_without_last_row[column] + df[target_weight_change_column]).shift(1).fillna(value=first_value).round().astype(int)
+    df[target_weight_column] = (
+        (df_without_last_row[column] + df[target_weight_change_column])
+        .shift(1)
+        .fillna(value=first_value)
+        .round()
+        .astype(int)
+    )
 
     return df

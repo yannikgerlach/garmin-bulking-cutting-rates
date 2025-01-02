@@ -6,7 +6,7 @@ As a result, it's unsuitable for effectively comparing your weight change to opt
 
 The code calculates weekly and two-weekly averages of the weight data.
 It also calculates the weight change per week based on the weekly and two-weekly averages, respectively.
-You can use these to more accurately track your weight over time, 
+You can use these to more accurately track your weight over time,
 spotting trends and changes more easily and smoothing out daily fluctuations.
 
 This repository contains code for analyzing your Garmin weight data in a more flexible way.
@@ -14,7 +14,7 @@ The weight data gets loaded with the [garminconnect](https://pypi.org/project/ga
 The data is then analysed with the [pandas](https://pandas.pydata.org/) package.
 
 ## Installation
-This repository uses poetry for dependency management. 
+This repository uses poetry for dependency management.
 To install the dependencies, run the following command:
 ```bash
 poetry install
