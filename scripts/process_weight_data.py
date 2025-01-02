@@ -2,6 +2,13 @@ import os
 
 import pandas as pd
 
+from scripts.columns import (
+    DATE_COLUMN,
+    WEIGHT_IN_GRAMS_7D_COLUMN,
+    WEIGHT_IN_GRAMS_14D_COLUMN,
+    WEIGHT_IN_GRAMS_COLUMN,
+)
+
 
 def add_moving_average_and_change(df: pd.DataFrame, column: str, window: int) -> None:
     """
@@ -38,13 +45,15 @@ def create_weight_data_frame(data: dict) -> pd.DataFrame:
         (d["summaryDate"], round(d["allWeightMetrics"][0]["weight"]))
         for d in data_weight
     ]
-    df = pd.DataFrame(daily_weights, columns=["date", "weight_in_grams"])
+    df = pd.DataFrame(daily_weights, columns=[DATE_COLUMN, WEIGHT_IN_GRAMS_COLUMN])
 
     # fill in missing dates
-    df["date"] = pd.to_datetime(df["date"])
-    df.set_index("date", inplace=True)
+    df[DATE_COLUMN] = pd.to_datetime(df[DATE_COLUMN])
+    df.set_index(DATE_COLUMN, inplace=True)
     df = df.resample("D").asfreq()
-    df["weight_in_grams"] = df["weight_in_grams"].interpolate(method="pad").astype(int)
+    df[WEIGHT_IN_GRAMS_COLUMN] = (
+        df[WEIGHT_IN_GRAMS_COLUMN].interpolate(method="pad").astype(int)
+    )
 
     return df
 
@@ -71,8 +80,8 @@ def process_weight_data(data: dict) -> pd.DataFrame:
     """
     df = create_weight_data_frame(data)
 
-    add_moving_average_and_change(df=df, column="weight_in_grams", window=7)
-    add_moving_average_and_change(df=df, column="weight_in_grams", window=14)
+    add_moving_average_and_change(df=df, column=WEIGHT_IN_GRAMS_COLUMN, window=7)
+    add_moving_average_and_change(df=df, column=WEIGHT_IN_GRAMS_COLUMN, window=14)
 
     return df
 
@@ -80,7 +89,11 @@ def process_weight_data(data: dict) -> pd.DataFrame:
 def filter_df_to_weekly_changes(df: pd.DataFrame) -> pd.DataFrame:
     # remove weight in grams columns
     df = df.drop(
-        columns=["weight_in_grams", "weight_in_grams_7d", "weight_in_grams_14d"]
+        columns=[
+            WEIGHT_IN_GRAMS_COLUMN,
+            WEIGHT_IN_GRAMS_7D_COLUMN,
+            WEIGHT_IN_GRAMS_14D_COLUMN,
+        ]
     )
 
     # only show the rows where the weekly change is not null
