@@ -4,9 +4,11 @@ import unittest
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
+from scripts.columns import DATE_COLUMN, WEIGHT_IN_GRAMS_COLUMN
 from scripts.process_weight_data import (
     add_moving_average_and_change,
     add_target_weight_change,
+    create_weight_data_frame,
     filter_df_to_weekly_changes,
     process_weight_data,
 )
@@ -256,3 +258,25 @@ class TestAddTargetWeightChange(unittest.TestCase):
         assert change_column.tolist() == expected_target_weight_change
 
         assert result_df["target_weight_14d"].tolist() == expected_target_weight
+
+
+class TestCreateWeightDataFrame(unittest.TestCase):
+    def test_create_weight_data_frame(self):
+        # note the two missing day data
+        data = {
+            "dailyWeightSummaries": [
+                {"summaryDate": "2023-01-01", "allWeightMetrics": [{"weight": 70}]},
+                {"summaryDate": "2023-01-03", "allWeightMetrics": [{"weight": 72}]},
+                {"summaryDate": "2023-01-05", "allWeightMetrics": [{"weight": 74}]},
+            ]
+        }
+
+        expected_data = {
+            DATE_COLUMN: pd.date_range(start="2023-01-01", end="2023-01-05", freq="D"),
+            WEIGHT_IN_GRAMS_COLUMN: [70, 71, 72, 73, 74],
+        }
+        expected_df = pd.DataFrame(expected_data)
+        expected_df.set_index(DATE_COLUMN, inplace=True)
+
+        result_df = create_weight_data_frame(data)
+        assert_frame_equal(result_df, expected_df, check_freq=False, check_names=False)
