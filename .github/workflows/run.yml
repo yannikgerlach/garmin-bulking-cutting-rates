@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -32,3 +32,9 @@ jobs:
         run: |
           chmod +x run.sh
           ./run.sh
+        env:
+            GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
+            GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
+            MAKE_API_KEY: ${{ secrets.MAKE_API_KEY }}
+            WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+            TARGET_WEEKLY_CHANGE_PERCENTAGE: env.TARGET_WEEKLY_CHANGE_PERCENTAGE
