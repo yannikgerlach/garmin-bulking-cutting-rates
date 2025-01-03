@@ -1,7 +1,10 @@
 name: Run
 
+# schedule every morning at 7:45 AM CET
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '45 6 * * *'
 
 jobs:
   run:
