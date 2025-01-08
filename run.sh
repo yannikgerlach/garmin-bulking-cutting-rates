@@ -1,5 +1,4 @@
-# run download, plot and process after another (using poetry environment)
-# Usage: ./run.sh
+#!/bin/bash
 
 poetry run python scripts/download.py
 poetry run python scripts/process.py
