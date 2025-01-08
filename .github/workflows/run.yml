@@ -34,7 +34,7 @@ jobs:
       - name: Run run.sh script
         run: |
           chmod +x run.sh
-          ./run.sh
+          ./run.sh --send
         env:
             GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
             GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
