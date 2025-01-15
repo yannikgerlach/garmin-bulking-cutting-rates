@@ -7,7 +7,12 @@ from scripts.columns import (
     WEIGHT_IN_GRAMS_7D_COLUMN,
     WEIGHT_IN_GRAMS_14D_COLUMN,
 )
-from scripts.files import DAILY_DATA_FILE, WEEKLY_DATA_FILE
+from scripts.files import (
+    DAILY_DATA_FILE,
+    WEEKLY_DATA_FILE,
+    WEIGHT_CHANGE_PNG,
+    WEIGHT_PNG,
+)
 
 df_daily = pd.read_csv(DAILY_DATA_FILE)
 df_daily[DATE_COLUMN] = pd.to_datetime(df_daily[DATE_COLUMN])
@@ -133,7 +138,7 @@ for x_val, y_val in zip(last_two_rows[DATE_COLUMN], last_two_rows["target_weight
 
 
 # save the plot
-fig.savefig("weight.png")
+fig.savefig(WEIGHT_PNG)
 
 # plot the weekly change separately
 
@@ -184,4 +189,4 @@ for x_val, y_val in zip(df[DATE_COLUMN], df["target_weight_change_14d"]):
     )
 
 # save the plot
-fig.savefig("weight_change.png")
+fig.savefig(WEIGHT_CHANGE_PNG)
