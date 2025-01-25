@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -13,6 +15,8 @@ from scripts.files import (
     WEIGHT_CHANGE_PNG,
     WEIGHT_PNG,
 )
+
+os.environ["MPLCONFIGDIR"] = os.getenv("STORAGE_DIRECTORY", "./")
 
 df_daily = pd.read_csv(DAILY_DATA_FILE)
 df_daily[DATE_COLUMN] = pd.to_datetime(df_daily[DATE_COLUMN])
