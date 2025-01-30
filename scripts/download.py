@@ -8,7 +8,9 @@ from scripts.files import RAW_DATA_FILE
 
 
 def load_and_store_gamin_data():
-    garmin = garminconnect.Garmin(os.getenv("GARMIN_EMAIL"), os.getenv("GARMIN_PASSWORD"))
+    garmin = garminconnect.Garmin(
+        os.getenv("GARMIN_EMAIL"), os.getenv("GARMIN_PASSWORD")
+    )
     garmin.login()
 
     GARTH_HOME = os.getenv("GARTH_HOME", "~/.garth")
@@ -22,6 +24,7 @@ def load_and_store_gamin_data():
 
     with open(RAW_DATA_FILE, "w", encoding="utf-8") as f:
         f.write(json.dumps(data))
+
 
 if __name__ == "__main__":
     load_and_store_gamin_data()

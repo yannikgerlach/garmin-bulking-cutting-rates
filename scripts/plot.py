@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
-import numpy as np
 
 from scripts.columns import (
     DATE_COLUMN,
@@ -29,7 +29,6 @@ def plot_figures():
     sns.set_theme(style="whitegrid")
     fig, ax = plt.subplots(figsize=(12, 6))
 
-
     # plot weight_in_grams_7d (removing zeros)
     # Create separate dataframes for 7d and 14d data, remove zeros
     df_7d = (
@@ -46,19 +45,21 @@ def plot_figures():
         .tail(7)
         .copy()
     )
-    
+
     target_this_week = last_two_rows.tail(1)
     target_this_week_weight = target_this_week["target_weight_7d"].values[0]
     target_this_week_day = target_this_week[DATE_COLUMN].values[0]
     most_recent_reading_date = df_daily[DATE_COLUMN].max()
     remaining_days_this_week = (target_this_week_day - most_recent_reading_date).days
-    
+
     # we now have 7 - remaining_days_this_week days of data
     # at the end of the week the average should be the target weight
     # so we need to calculate the average of the remaining days
     # TODO: NEEDS TO BE ON RAW DATA
-    raw_data_weight_first_days = df_daily["weight_in_grams"].tail(7 - remaining_days_this_week)
-    
+    raw_data_weight_first_days = df_daily["weight_in_grams"].tail(
+        7 - remaining_days_this_week
+    )
+
     # the average of raw_data_weight_first_days + some values needs to be target_this_week_weight
     # we want to find out the values needed to add to raw_data_weight_first_days to get target_this_week_weight
     # we can do this by calculating the average of raw_data_weight_first_days and then adding the difference
@@ -66,25 +67,35 @@ def plot_figures():
     average_weight = raw_data_weight_first_days.mean()
     difference = target_this_week_weight - average_weight
     # find the reamining raw weight data (remaining_days_this_week) to get to the desired target weight
-    
+
     target_weight_sum = target_this_week_weight * 7 - sum(raw_data_weight_first_days)
     target_weight_per_day = target_weight_sum / remaining_days_this_week
-    
+
     # now we want to distribute the weight unevenly over the remaining days
     # so that it increases over time (or decreases) to reach the target weight
-    
+
     # assume we want to gain weight
-    average_weight_days_so_far = raw_data_weight_first_days.mean() # that's the minimum weight
-    
+    average_weight_days_so_far = (
+        raw_data_weight_first_days.mean()
+    )  # that's the minimum weight
+
     difference_needed_per_day = target_weight_per_day - average_weight_days_so_far
-    
+
     full_target_weight_sum = sum(raw_data_weight_first_days) + target_weight_sum
-    
+
     # interpolate using pandas on the sums
     interpolate_df = pd.DataFrame()
-    interpolate_df["weight"] = np.cumsum(raw_data_weight_first_days).values.tolist() + (remaining_days_this_week - 1) * [np.nan] + [float(full_target_weight_sum)]
-    remaining_days_weight = interpolate_df['weight'].interpolate(method="quadratic").diff().tail(remaining_days_this_week)
-    
+    interpolate_df["weight"] = (
+        np.cumsum(raw_data_weight_first_days).values.tolist()
+        + (remaining_days_this_week - 1) * [np.nan]
+        + [float(full_target_weight_sum)]
+    )
+    remaining_days_weight = (
+        interpolate_df["weight"]
+        .interpolate(method="quadratic")
+        .diff()
+        .tail(remaining_days_this_week)
+    )
 
     # Plot each series
     df_7d_last = df_7d.tail(1)
@@ -99,7 +110,9 @@ def plot_figures():
         label="7d",
     )
     color_7d = line_7d.get_lines()[-1].get_color()
-    for x_val, y_val in zip(df_7d_last[DATE_COLUMN], df_7d_last[WEIGHT_IN_GRAMS_7D_COLUMN]):
+    for x_val, y_val in zip(
+        df_7d_last[DATE_COLUMN], df_7d_last[WEIGHT_IN_GRAMS_7D_COLUMN]
+    ):
         ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=color_7d)
 
     line_14d = sns.lineplot(
@@ -110,7 +123,6 @@ def plot_figures():
         ax=ax,
         label="14d",
     )
-
 
     # First plot all 14d data
     sns.lineplot(
@@ -123,7 +135,9 @@ def plot_figures():
     )
     line_14d = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_14d_weekly"]):
-        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_14d.get_color())
+        ax.text(
+            x_val, y_val, y_val, ha="center", va="bottom", color=line_14d.get_color()
+        )
 
     sns.lineplot(
         data=df,
@@ -135,7 +149,9 @@ def plot_figures():
     )
     line_7d = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_7d_weekly"]):
-        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=line_7d.get_color())
+        ax.text(
+            x_val, y_val, y_val, ha="center", va="bottom", color=line_7d.get_color()
+        )
 
     # Plot only the last 2 values of each column
     sns.scatterplot(
@@ -147,7 +163,9 @@ def plot_figures():
         label="Target Weekly 14d",
         marker="x",
     )
-    for x_val, y_val in zip(last_two_rows[DATE_COLUMN], last_two_rows["target_weight_14d"]):
+    for x_val, y_val in zip(
+        last_two_rows[DATE_COLUMN], last_two_rows["target_weight_14d"]
+    ):
         ax.text(
             x_val,
             y_val,
@@ -167,7 +185,9 @@ def plot_figures():
         label="Target Weekly 7d",
         marker="x",
     )
-    for x_val, y_val in zip(last_two_rows[DATE_COLUMN], last_two_rows["target_weight_7d"]):
+    for x_val, y_val in zip(
+        last_two_rows[DATE_COLUMN], last_two_rows["target_weight_7d"]
+    ):
         ax.text(
             x_val,
             y_val,
@@ -177,7 +197,36 @@ def plot_figures():
             color=line_7d.get_color(),
             style="italic",
         )
-
+        
+    # plot remaining days weight
+    remaining_days_weight = remaining_days_weight.reset_index(drop=True)
+    # the days are the last remaining days of this week 
+    remaining_days_weight.index = df_7d_last[DATE_COLUMN].values[0] + pd.to_timedelta(
+        np.arange(1, remaining_days_this_week + 1), unit="D"
+    )
+    
+    sns.lineplot(
+        data=remaining_days_weight,
+        marker="o",
+        ax=ax,
+        label="Remaining Days",
+    )
+    # add the values
+    for x_val, y_val in zip(
+        remaining_days_weight.index, remaining_days_weight.values
+    ):
+        # round y to full integer / grams
+        y_val = round(y_val)
+        ax.text(
+            x_val,
+            y_val,
+            y_val,
+            ha="center",
+            va="bottom",
+            color=color_7d,
+        )
+    
+    
 
     # save the plot
     fig.savefig(WEIGHT_PNG)
@@ -197,7 +246,12 @@ def plot_figures():
     line_14d_change = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_14d_weekly_change"]):
         ax.text(
-            x_val, y_val, y_val, ha="center", va="bottom", color=line_14d_change.get_color()
+            x_val,
+            y_val,
+            y_val,
+            ha="center",
+            va="bottom",
+            color=line_14d_change.get_color(),
         )
 
     sns.lineplot(
@@ -211,7 +265,12 @@ def plot_figures():
     line_7d_change = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_7d_weekly_change"]):
         ax.text(
-            x_val, y_val, y_val, ha="center", va="bottom", color=line_7d_change.get_color()
+            x_val,
+            y_val,
+            y_val,
+            ha="center",
+            va="bottom",
+            color=line_7d_change.get_color(),
         )
 
     # add line plot for target weekly change (column target_weight_change)
