@@ -17,6 +17,7 @@ from scripts.files import (
 
 
 def plot_figures():
+    # pylint: disable=too-many-locals, too-many-statements
     df_daily = pd.read_csv(DAILY_DATA_FILE)
     df_daily[DATE_COLUMN] = pd.to_datetime(df_daily[DATE_COLUMN])
 
@@ -52,34 +53,11 @@ def plot_figures():
     most_recent_reading_date = df_daily[DATE_COLUMN].max()
     remaining_days_this_week = (target_this_week_day - most_recent_reading_date).days
 
-    # we now have 7 - remaining_days_this_week days of data
-    # at the end of the week the average should be the target weight
-    # so we need to calculate the average of the remaining days
-    # TODO: NEEDS TO BE ON RAW DATA
     raw_data_weight_first_days = df_daily["weight_in_grams"].tail(
         7 - remaining_days_this_week
     )
 
-    # the average of raw_data_weight_first_days + some values needs to be target_this_week_weight
-    # we want to find out the values needed to add to raw_data_weight_first_days to get target_this_week_weight
-    # we can do this by calculating the average of raw_data_weight_first_days and then adding the difference
-    # between the target_this_week_weight and the average to each value in raw_data_weight_first_days
-    average_weight = raw_data_weight_first_days.mean()
-    difference = target_this_week_weight - average_weight
-    # find the reamining raw weight data (remaining_days_this_week) to get to the desired target weight
-
     target_weight_sum = target_this_week_weight * 7 - sum(raw_data_weight_first_days)
-    target_weight_per_day = target_weight_sum / remaining_days_this_week
-
-    # now we want to distribute the weight unevenly over the remaining days
-    # so that it increases over time (or decreases) to reach the target weight
-
-    # assume we want to gain weight
-    average_weight_days_so_far = (
-        raw_data_weight_first_days.mean()
-    )  # that's the minimum weight
-
-    difference_needed_per_day = target_weight_per_day - average_weight_days_so_far
 
     full_target_weight_sum = sum(raw_data_weight_first_days) + target_weight_sum
 
@@ -99,7 +77,6 @@ def plot_figures():
 
     # Plot each series
     df_7d_last = df_7d.tail(1)
-    df_14d_last = df_14d.tail(1)
 
     line_7d = sns.lineplot(
         data=df_7d,
@@ -197,14 +174,14 @@ def plot_figures():
             color=line_7d.get_color(),
             style="italic",
         )
-        
+
     # plot remaining days weight
     remaining_days_weight = remaining_days_weight.reset_index(drop=True)
-    # the days are the last remaining days of this week 
+    # the days are the last remaining days of this week
     remaining_days_weight.index = df_7d_last[DATE_COLUMN].values[0] + pd.to_timedelta(
         np.arange(1, remaining_days_this_week + 1), unit="D"
     )
-    
+
     sns.lineplot(
         data=remaining_days_weight,
         marker="o",
@@ -212,9 +189,7 @@ def plot_figures():
         label="Remaining Days",
     )
     # add the values
-    for x_val, y_val in zip(
-        remaining_days_weight.index, remaining_days_weight.values
-    ):
+    for x_val, y_val in zip(remaining_days_weight.index, remaining_days_weight.values):
         # round y to full integer / grams
         y_val = round(y_val)
         ax.text(
@@ -225,8 +200,6 @@ def plot_figures():
             va="bottom",
             color=color_7d,
         )
-    
-    
 
     # save the plot
     fig.savefig(WEIGHT_PNG)
