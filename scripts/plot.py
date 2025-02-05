@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -14,6 +13,7 @@ from scripts.files import (
     WEIGHT_CHANGE_PNG,
     WEIGHT_PNG,
 )
+from scripts.predictions import DailyWeightForecaster
 
 
 def plot_figures():
@@ -47,59 +47,8 @@ def plot_figures():
         .copy()
     )
 
-    target_this_week = last_two_rows.tail(1)
-    target_this_week_weight = target_this_week["target_weight_7d"].values[0]
-    target_this_week_day = target_this_week[DATE_COLUMN].values[0]
-    most_recent_reading_date = df_daily[DATE_COLUMN].max()
-    remaining_days_this_week = (target_this_week_day - most_recent_reading_date).days
-    passed_days_this_week = 7 - remaining_days_this_week
-
-    raw_data_weight_first_days = df_daily["weight_in_grams"].tail(passed_days_this_week)
-
-    number_of_days_to_look_back = max(
-        2, passed_days_this_week
-    )  # quadratic interpolation needs at least 2 points
-    last_7d_weights = (
-        df_daily["weight_in_grams"].tail(number_of_days_to_look_back).values.tolist()
-    )  # how many days to look back
-    number_of_last_weeks_days = max(
-        0, number_of_days_to_look_back - passed_days_this_week
-    )
-    raw_weight_last_days = last_7d_weights[:number_of_last_weeks_days]
-    target_weight_sum_with_last_days = target_this_week_weight * 7 + sum(
-        raw_weight_last_days
-    )
-
-    # interpolate using pandas on the sums
-    interpolate_df = pd.DataFrame()
-    interpolate_df["weight"] = (
-        np.cumsum(last_7d_weights).tolist()
-        + (remaining_days_this_week - 1) * [np.nan]
-        + [float(target_weight_sum_with_last_days)]
-    )
-    remaining_days_weight = (
-        interpolate_df["weight"]
-        .interpolate(method="quadratic")
-        .diff()
-        .tail(remaining_days_this_week)
-    )
-
-    # check correctness
-    targeted_weights_this_week = (
-        raw_data_weight_first_days.values.tolist()
-        + remaining_days_weight.values.tolist()
-    )
-    average_targeted_weight_this_week = (
-        np.mean(targeted_weights_this_week).round().astype(int)
-    )
-    if average_targeted_weight_this_week == target_this_week_weight:
-        print("Correctly calculated the target weight for this week")
-    else:
-        print(
-            "Error in calculating the target weight for this week: ",
-            average_targeted_weight_this_week,
-            target_this_week_weight,
-        )
+    daily_weight_forecaster = DailyWeightForecaster()
+    remaining_days_weight = daily_weight_forecaster.calculate()
 
     # Plot each series
     df_7d_last = df_7d.tail(1)
@@ -200,13 +149,6 @@ def plot_figures():
             color=line_7d.get_color(),
             style="italic",
         )
-
-    # plot remaining days weight
-    remaining_days_weight = remaining_days_weight.reset_index(drop=True)
-    # the days are the last remaining days of this week
-    remaining_days_weight.index = df_7d_last[DATE_COLUMN].values[0] + pd.to_timedelta(
-        np.arange(1, remaining_days_this_week + 1), unit="D"
-    )
 
     sns.lineplot(
         data=remaining_days_weight,
