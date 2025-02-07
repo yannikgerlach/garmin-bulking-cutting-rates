@@ -1,37 +1,33 @@
 import numpy as np
 import pandas as pd
 
-from scripts.columns import DATE_COLUMN, WEIGHT_IN_GRAMS_7D_COLUMN
+from scripts.columns import (
+    DATE_COLUMN,
+    WEIGHT_IN_GRAMS_7D_COLUMN,
+    WEIGHT_IN_GRAMS_COLUMN,
+)
 from scripts.files import DAILY_DATA_FILE, WEEKLY_DATA_FILE
 
 
 class DailyWeightForecaster:
+    # pylint: disable=too-few-public-methods
     def __init__(self):
         self._df_daily = None
         self._df_weekly = None
 
-    def load_data(self):
-        self._df_daily = pd.read_csv(DAILY_DATA_FILE)
-        self._df_daily[DATE_COLUMN] = pd.to_datetime(self._df_daily[DATE_COLUMN])
-
-        self._df_weekly = pd.read_csv(WEEKLY_DATA_FILE)
-        self._df_weekly[DATE_COLUMN] = pd.to_datetime(self._df_weekly[DATE_COLUMN])
-
-    def calculate(self):
-        # pylint: disable=too-many-locals
+    def calculate(self) -> pd.DataFrame:
         if self._df_daily is None or self._df_weekly is None:
-            self.load_data()
+            self._load_daily_weekly_data()
 
         target_this_week = self._df_weekly.tail(1)
         target_this_week_weight = target_this_week["target_weight_7d"].values[0]
-        target_this_week_day = target_this_week[DATE_COLUMN].values[0]
-        most_recent_reading_date = self._df_daily[DATE_COLUMN].max()
-        remaining_days_this_week = (
-            target_this_week_day - most_recent_reading_date
-        ).days
+
+        remaining_days_this_week = self._get_remaining_days_this_week(
+            target_this_week=target_this_week
+        )
         passed_days_this_week = 7 - remaining_days_this_week
 
-        raw_data_weight_first_days = self._df_daily["weight_in_grams"].tail(
+        raw_data_weight_first_days = self._df_daily[WEIGHT_IN_GRAMS_COLUMN].tail(
             passed_days_this_week
         )
 
@@ -44,10 +40,11 @@ class DailyWeightForecaster:
             interpolation_method = "barycentric"
 
         last_7d_weights = (
-            self._df_daily["weight_in_grams"]
+            self._df_daily[WEIGHT_IN_GRAMS_COLUMN]
             .tail(number_of_days_to_look_back)
             .values.tolist()
-        )  # how many days to look back
+        )
+        # how many days to look back
         number_of_last_weeks_days = max(
             0, number_of_days_to_look_back - passed_days_this_week
         )
@@ -72,7 +69,40 @@ class DailyWeightForecaster:
 
         remaining_days_weight = remaining_days_weight.reset_index(drop=True)
 
-        # the days are the last remaining days of this week
+        self._add_date_to_remaining_days_weight(
+            remaining_days_weight=remaining_days_weight,
+        )
+
+        self._check_correctness(
+            target_this_week_weight=target_this_week_weight,
+            remaining_days_weight=remaining_days_weight,
+            raw_data_weight_first_days=raw_data_weight_first_days,
+        )
+
+        return remaining_days_weight
+
+    def _load_daily_weekly_data(self):
+        self._df_daily = pd.read_csv(DAILY_DATA_FILE)
+        self._df_daily[DATE_COLUMN] = pd.to_datetime(self._df_daily[DATE_COLUMN])
+
+        self._df_weekly = pd.read_csv(WEEKLY_DATA_FILE)
+        self._df_weekly[DATE_COLUMN] = pd.to_datetime(self._df_weekly[DATE_COLUMN])
+
+    def _get_remaining_days_this_week(self, target_this_week: pd.DataFrame) -> int:
+        assert self._df_daily is not None
+
+        target_this_week_day = target_this_week[DATE_COLUMN].values[0]
+        most_recent_reading_date = self._df_daily[DATE_COLUMN].max()
+        return (target_this_week_day - most_recent_reading_date).days
+
+    def _add_date_to_remaining_days_weight(
+        self, remaining_days_weight: pd.DataFrame
+    ) -> None:
+        """
+        Add the dates to the remaining days weight values.
+        """
+        remaining_days_this_week = len(remaining_days_weight)
+
         df_7d_last = (
             self._df_daily[self._df_daily[WEIGHT_IN_GRAMS_7D_COLUMN] != 0][
                 [DATE_COLUMN, WEIGHT_IN_GRAMS_7D_COLUMN]
@@ -85,18 +115,13 @@ class DailyWeightForecaster:
             0
         ] + pd.to_timedelta(np.arange(1, remaining_days_this_week + 1), unit="D")
 
-        # check correctness
-        self._check_correctness(
-            target_this_week_weight=target_this_week_weight,
-            remaining_days_weight=remaining_days_weight,
-            raw_data_weight_first_days=raw_data_weight_first_days,
-        )
-
-        return remaining_days_weight
-
     def _check_correctness(
         self, target_this_week_weight, remaining_days_weight, raw_data_weight_first_days
     ):
+        """
+        Check correctness of the calculation by comparing the average
+        of the targeted weights with the target weight for this week.
+        """
         targeted_weights_this_week = (
             raw_data_weight_first_days.values.tolist()
             + remaining_days_weight.values.tolist()
