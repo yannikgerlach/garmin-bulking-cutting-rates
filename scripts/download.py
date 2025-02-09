@@ -12,9 +12,7 @@ def load_and_store_gamin_data():
         os.getenv("GARMIN_EMAIL"), os.getenv("GARMIN_PASSWORD")
     )
     garmin.login()
-
-    GARTH_HOME = os.getenv("GARTH_HOME", "~/.garth")
-    garmin.garth.dump(GARTH_HOME)
+    garmin.garth.dump(os.getenv("GARTH_HOME", "~/.garth"))
 
     startdate = date(2024, 11, 1).isoformat()  # to do: allow user to specify start date
     enddate = date.today().isoformat()
