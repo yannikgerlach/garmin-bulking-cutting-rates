@@ -46,12 +46,17 @@ def process_daily_data(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
 
-with open(RAW_DATA_FILE, "r", encoding="utf-8") as f:
-    data = json.load(f)
-    df_weight_data = process_weight_data(data)
+def process():
+    with open(RAW_DATA_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        df_weight_data = process_weight_data(data)
 
-    df_daily_data = process_daily_data(df_weight_data)
-    df_daily_data.to_csv(DAILY_DATA_FILE)
+        df_daily_data = process_daily_data(df_weight_data)
+        df_daily_data.to_csv(DAILY_DATA_FILE)
 
-    df_weekly_data = process_weekly_data(df_weight_data)
-    df_weekly_data.to_csv(WEEKLY_DATA_FILE)
+        df_weekly_data = process_weekly_data(df_weight_data)
+        df_weekly_data.to_csv(WEEKLY_DATA_FILE)
+
+
+if __name__ == "__main__":
+    process()
