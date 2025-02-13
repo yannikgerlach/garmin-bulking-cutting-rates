@@ -31,13 +31,7 @@ class DailyWeightForecaster:
             passed_days_this_week
         )
 
-        # method max(3, passed_days_this_week)
-        if passed_days_this_week < 3:
-            number_of_days_to_look_back = 3
-            interpolation_method = "quadratic"
-        else:
-            number_of_days_to_look_back = passed_days_this_week
-            interpolation_method = "barycentric"
+        number_of_days_to_look_back = max(2, passed_days_this_week)
 
         last_7d_weights = (
             self._df_daily[WEIGHT_IN_GRAMS_COLUMN]
@@ -62,7 +56,7 @@ class DailyWeightForecaster:
         )
         remaining_days_weight = (
             interpolate_df["weight"]
-            .interpolate(method=interpolation_method)
+            .interpolate(method="quadratic")
             .diff()
             .tail(remaining_days_this_week)
         )
