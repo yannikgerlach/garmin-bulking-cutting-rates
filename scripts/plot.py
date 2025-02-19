@@ -7,23 +7,13 @@ from scripts.columns import (
     WEIGHT_IN_GRAMS_7D_COLUMN,
     WEIGHT_IN_GRAMS_14D_COLUMN,
 )
-from scripts.files import (
-    DAILY_DATA_FILE,
-    WEEKLY_DATA_FILE,
-    WEIGHT_CHANGE_PNG,
-    WEIGHT_PNG,
-)
-from scripts.predictions import DailyWeightForecaster
+from scripts.files import WEIGHT_CHANGE_PNG, WEIGHT_PNG
 
 
-def plot_figures():
+def plot_figures(
+    df_daily: pd.DataFrame, df: pd.DataFrame, remaining_days_weight: pd.Series
+) -> None:
     # pylint: disable=too-many-locals, too-many-statements
-    df_daily = pd.read_csv(DAILY_DATA_FILE)
-    df_daily[DATE_COLUMN] = pd.to_datetime(df_daily[DATE_COLUMN])
-
-    df = pd.read_csv(WEEKLY_DATA_FILE)
-    df[DATE_COLUMN] = pd.to_datetime(df[DATE_COLUMN])
-
     last_two_rows = df.tail(2)
     df = df.drop(df.tail(1).index)
 
@@ -46,9 +36,6 @@ def plot_figures():
         .tail(7)
         .copy()
     )
-
-    daily_weight_forecaster = DailyWeightForecaster()
-    remaining_days_weight = daily_weight_forecaster.calculate()
 
     # Plot each series
     df_7d_last = df_7d.tail(1)
@@ -232,7 +219,3 @@ def plot_figures():
 
     # save the plot
     fig.savefig(WEIGHT_CHANGE_PNG)
-
-
-if __name__ == "__main__":
-    plot_figures()
