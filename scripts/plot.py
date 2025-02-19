@@ -17,6 +17,22 @@ def plot_figures(
     last_two_rows = df.tail(2)
     df = df.drop(df.tail(1).index)
 
+    plot_weight(
+        df_daily=df_daily,
+        df=df,
+        remaining_days_weight=remaining_days_weight,
+        last_two_rows=last_two_rows,
+    )
+    plot_weekly_change(df)
+
+
+def plot_weight(
+    df_daily: pd.DataFrame,
+    df: pd.DataFrame,
+    remaining_days_weight: pd.Series,
+    last_two_rows: pd.DataFrame,
+) -> None:
+    # pylint: disable=too-many-locals, too-many-statements
     sns.set_theme(style="whitegrid")
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -159,6 +175,9 @@ def plot_figures(
     # save the plot
     fig.savefig(WEIGHT_PNG)
 
+
+def plot_weekly_change(df: pd.DataFrame) -> None:
+    # pylint: disable=too-many-locals, too-many-statements
     # plot the weekly change separately
 
     fig, ax = plt.subplots(figsize=(12, 6))
