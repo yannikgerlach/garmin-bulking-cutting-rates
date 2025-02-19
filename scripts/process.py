@@ -16,6 +16,7 @@ from scripts.process_weight_data import (
     filter_df_to_weekly_changes,
     process_weight_data,
 )
+from scripts.send import send
 
 
 def process_weekly_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -62,21 +63,32 @@ def process():
     df_daily_data = process_daily_data(df_weight_data.copy())
     df_weekly_data = process_weekly_data(df_weight_data.copy())
 
-    print("weight today", df_daily_data[WEIGHT_IN_GRAMS_COLUMN].iloc[-1])
+    weight_today = df_daily_data[WEIGHT_IN_GRAMS_COLUMN].iloc[-1]
 
     daily_weight_forecaster = DailyWeightForecaster(
         df_daily=df_daily_data.copy(), df_weekly=df_weekly_data.copy()
     )
     remaining_days_weight = daily_weight_forecaster.calculate()
 
-    print(remaining_days_weight.to_string())
-    print("target weight this week", df_weekly_data["target_weight_7d"].iloc[-1])
+    target_weight_this_week = df_weekly_data["target_weight_7d"].iloc[-1]
 
     plot_figures(
         df_daily=df_daily_data.copy(),
         df=df_weekly_data.copy(),
         remaining_days_weight=remaining_days_weight.copy(),
     )
+
+    text = f"""
+weight today: {weight_today}
+<br><br>
+remaining days weight:<br>
+{remaining_days_weight.to_string().replace("\n", "<br>")}
+<br><br>
+target weight this week: {target_weight_this_week}
+
+"""
+
+    send(text=text)
 
 
 if __name__ == "__main__":
