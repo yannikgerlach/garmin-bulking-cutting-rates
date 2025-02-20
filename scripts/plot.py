@@ -6,8 +6,9 @@ from scripts.columns import (
     DATE_COLUMN,
     WEIGHT_IN_GRAMS_7D_COLUMN,
     WEIGHT_IN_GRAMS_14D_COLUMN,
+    WEIGHT_IN_GRAMS_COLUMN,
 )
-from scripts.files import WEIGHT_CHANGE_PNG, WEIGHT_PNG
+from scripts.files import REMAINING_DAYS_WEIGHT_PNG, WEIGHT_CHANGE_PNG, WEIGHT_PNG
 
 
 def plot_figures(
@@ -20,8 +21,10 @@ def plot_figures(
     plot_weight(
         df_daily=df_daily,
         df=df,
-        remaining_days_weight=remaining_days_weight,
         last_two_rows=last_two_rows,
+    )
+    plot_remaining_days_weight(
+        remaining_days_weight, df_daily=df_daily, last_two_rows=last_two_rows
     )
     plot_weekly_change(df)
 
@@ -29,7 +32,6 @@ def plot_figures(
 def plot_weight(
     df_daily: pd.DataFrame,
     df: pd.DataFrame,
-    remaining_days_weight: pd.Series,
     last_two_rows: pd.DataFrame,
 ) -> None:
     # pylint: disable=too-many-locals, too-many-statements
@@ -153,11 +155,76 @@ def plot_weight(
             style="italic",
         )
 
+    # save the plot
+    fig.savefig(WEIGHT_PNG)
+
+
+def plot_remaining_days_weight(
+    remaining_days_weight: pd.Series,
+    df_daily: pd.DataFrame,
+    last_two_rows: pd.DataFrame,
+) -> None:
+    df_raw_data_14_days = (
+        df_daily[df_daily[WEIGHT_IN_GRAMS_COLUMN] != 0][
+            [DATE_COLUMN, WEIGHT_IN_GRAMS_COLUMN]
+        ]
+        .tail(14)
+        .copy()
+    )
+
+    df_daily_14_days = (
+        df_daily[df_daily[WEIGHT_IN_GRAMS_7D_COLUMN] != 0][
+            [DATE_COLUMN, WEIGHT_IN_GRAMS_7D_COLUMN]
+        ]
+        .tail(14)
+        .copy()
+    )
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    # Plot 7d average for the last 14 days
+
+    line_14d = sns.lineplot(
+        data=df_daily_14_days,
+        x=DATE_COLUMN,
+        y=WEIGHT_IN_GRAMS_7D_COLUMN,
+        marker="o",
+        ax=ax,
+        label="7d Average (last 14 days)",
+    )
+    color_14d = line_14d.get_lines()[-1].get_color()
+    df_14d_last = df_daily_14_days.tail(1)
+    for x_val, y_val in zip(
+        df_14d_last[DATE_COLUMN], df_14d_last[WEIGHT_IN_GRAMS_7D_COLUMN]
+    ):
+        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=color_14d)
+
+    # plot the raw data for the last 14 days
+    sns.lineplot(
+        data=df_raw_data_14_days,
+        x=DATE_COLUMN,
+        y=WEIGHT_IN_GRAMS_COLUMN,
+        marker="o",
+        ax=ax,
+        label="Weight (last 14 days)",
+    )
+    color_raw_data = ax.lines[-1].get_color()
+
+    # add the latest value as text -> current day weight
+    df_raw_data_last = df_raw_data_14_days.tail(1)
+    for x_val, y_val in zip(
+        df_raw_data_last[DATE_COLUMN], df_raw_data_last[WEIGHT_IN_GRAMS_COLUMN]
+    ):
+        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=color_raw_data)
+        break
+
+    # plot the remaining days weight
     sns.lineplot(
         data=remaining_days_weight,
         marker="o",
         ax=ax,
-        label="Remaining Days",
+        label="Remaining Days Weight",
+        color="red",
     )
     # add the values
     for x_val, y_val in zip(remaining_days_weight.index, remaining_days_weight.values):
@@ -169,11 +236,32 @@ def plot_weight(
             y_val,
             ha="center",
             va="bottom",
-            color=color_7d,
+            color="red",
         )
 
-    # save the plot
-    fig.savefig(WEIGHT_PNG)
+    # add target weight 7d
+    last_row = last_two_rows.tail(1)
+    sns.scatterplot(
+        data=last_row,
+        x=DATE_COLUMN,
+        y="target_weight_7d",
+        color=color_14d,
+        ax=ax,
+        label="Target Weekly 7d",
+        marker="x",
+    )
+    for x_val, y_val in zip(last_row[DATE_COLUMN], last_row["target_weight_7d"]):
+        ax.text(
+            x_val,
+            y_val,
+            y_val,
+            ha="center",
+            va="bottom",
+            color=color_14d,
+            style="italic",
+        )
+
+    fig.savefig(REMAINING_DAYS_WEIGHT_PNG)
 
 
 def plot_weekly_change(df: pd.DataFrame) -> None:

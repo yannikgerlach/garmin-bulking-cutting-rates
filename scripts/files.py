@@ -24,3 +24,4 @@ WEEKLY_DATA_FILE = get_full_storage_path("weight.csv")
 
 WEIGHT_CHANGE_PNG = get_full_storage_path("weight_change.png")
 WEIGHT_PNG = get_full_storage_path("weight.png")
+REMAINING_DAYS_WEIGHT_PNG = get_full_storage_path("remaining_days_weight.png")
