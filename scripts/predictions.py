@@ -6,19 +6,15 @@ from scripts.columns import (
     WEIGHT_IN_GRAMS_7D_COLUMN,
     WEIGHT_IN_GRAMS_COLUMN,
 )
-from scripts.files import DAILY_DATA_FILE, WEEKLY_DATA_FILE
 
 
 class DailyWeightForecaster:
     # pylint: disable=too-few-public-methods
-    def __init__(self):
-        self._df_daily = None
-        self._df_weekly = None
+    def __init__(self, df_daily: pd.DataFrame, df_weekly: pd.DataFrame):
+        self._df_daily = df_daily
+        self._df_weekly = df_weekly
 
-    def calculate(self) -> pd.DataFrame:
-        if self._df_daily is None or self._df_weekly is None:
-            self._load_daily_weekly_data()
-
+    def calculate(self) -> pd.Series:
         target_this_week = self._df_weekly.tail(1)
         target_this_week_weight = target_this_week["target_weight_7d"].values[0]
 
@@ -73,14 +69,7 @@ class DailyWeightForecaster:
             raw_data_weight_first_days=raw_data_weight_first_days,
         )
 
-        return remaining_days_weight
-
-    def _load_daily_weekly_data(self):
-        self._df_daily = pd.read_csv(DAILY_DATA_FILE)
-        self._df_daily[DATE_COLUMN] = pd.to_datetime(self._df_daily[DATE_COLUMN])
-
-        self._df_weekly = pd.read_csv(WEEKLY_DATA_FILE)
-        self._df_weekly[DATE_COLUMN] = pd.to_datetime(self._df_weekly[DATE_COLUMN])
+        return remaining_days_weight.astype(int)
 
     def _get_remaining_days_this_week(self, target_this_week: pd.DataFrame) -> int:
         assert self._df_daily is not None
@@ -90,7 +79,7 @@ class DailyWeightForecaster:
         return (target_this_week_day - most_recent_reading_date).days
 
     def _add_date_to_remaining_days_weight(
-        self, remaining_days_weight: pd.DataFrame
+        self, remaining_days_weight: pd.Series
     ) -> None:
         """
         Add the dates to the remaining days weight values.
