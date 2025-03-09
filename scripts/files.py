@@ -2,16 +2,24 @@ import os
 
 
 def get_storage_directory_env() -> str:
+    """
+    Returns the storage directory path from the environment variable STORAGE_DIRECTORY.
+    If the environment variable is not set, it defaults to "./".
+    """
     return os.getenv("STORAGE_DIRECTORY", "./")
 
 
 def get_storage_directory() -> str:
-    storage_directory = get_storage_directory_env()
-    if not os.path.exists(storage_directory):
-        raise RuntimeError(f"Storage directory {storage_directory} does not exist.")
-    if not os.access(storage_directory, os.R_OK):
-        raise RuntimeError(f"Storage directory {storage_directory} is not readable.")
-    return storage_directory
+    directory_path = get_storage_directory_env()
+    if not os.path.isdir(directory_path):
+        raise RuntimeError(
+            f"Storage directory {directory_path} does not exist or is not a directory."
+        )
+    if not os.access(directory_path, os.R_OK | os.W_OK):
+        raise RuntimeError(
+            f"Storage directory {directory_path} is not readable or writable."
+        )
+    return directory_path
 
 
 def get_full_storage_path(filename: str) -> str:

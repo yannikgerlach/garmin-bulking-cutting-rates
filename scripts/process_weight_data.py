@@ -52,7 +52,7 @@ def create_weight_data_frame(data: dict) -> pd.DataFrame:
     df.set_index(DATE_COLUMN, inplace=True)
     df = df.resample("D").asfreq()
     df[WEIGHT_IN_GRAMS_COLUMN] = (
-        df[WEIGHT_IN_GRAMS_COLUMN].interpolate(method="linear").astype(int)
+        df[WEIGHT_IN_GRAMS_COLUMN].interpolate(method="linear").round().astype(int)
     )
 
     return df
