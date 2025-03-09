@@ -55,7 +55,7 @@ def process_daily_data(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def process():
+def process(send_plots: bool = False) -> None:
     with open(RAW_DATA_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -78,7 +78,8 @@ def process():
         remaining_days_weight=remaining_days_weight.copy(),
     )
 
-    text = f"""
+    if send_plots:
+        text = f"""
 weight today: {weight_today}
 <br><br>
 remaining days weight:<br>
@@ -88,8 +89,15 @@ target weight this week: {target_weight_this_week}
 
 """
 
-    send(text=text)
+        send(text=text)
 
 
 if __name__ == "__main__":
-    process()
+    import sys
+
+    arguments = sys.argv[1:]
+
+    if "--send" in arguments:
+        process(send_plots=True)
+    else:
+        process(send_plots=False)
