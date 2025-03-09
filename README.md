@@ -19,6 +19,23 @@ they often lack the flexibility and depth needed to effectively track your weigh
 - **Actionable Insights**: Calculate the daily weights you need to hit to reach your targeted weekly weight change rate.
 - **Plotting**: Plot three different plots of your weight data: absolute weight, weight change per week compared to your targeted weight change rate, and daily weight targets.
 
+## Examples
+
+### Weight Data Overview
+The following plot shows an example of the weekly and two-weekly averages of the weight data. The red line represents the weekly average, and the green line represents the two-weekly average.
+
+[![Weight Data Overview](docs/images/weight_overview_example.png)](docs/images/weight_overview_example.png)
+
+### Weight Change per Week
+The following plot shows an example of the weight change per week based on the weekly and two-weekly averages. The red line represents the targeted weight change rate. The blue line represents the weekly weight change rate, and the orange line represents the two-weekly weight change rate.
+
+[![Weight Change per Week](docs/images/weight_change_example.png)](docs/images/weight_change_example.png)
+
+### Weekly Overview & Daily Targets
+The following plot shows an example of the weekly overview and daily targets. The blue line shows the weekly weight average (including the target for the week) and the orange line shows the raw daily weights. The red line indicates the raw daily weights you need to hit to reach your targeted weekly weight change rate.
+
+[![Weekly Overview & Daily Targets](docs/images/weekly_overview_example.png)](docs/images/weekly_overview_example.png)
+
 ## Installation
 This repository uses poetry for dependency management.
 To install the dependencies, run the following command:
