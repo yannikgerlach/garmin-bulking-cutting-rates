@@ -7,7 +7,6 @@ import garminconnect
 from scripts.files import RAW_DATA_FILE
 
 
-# Function to get and validate the start date
 def get_start_date():
     startdate = os.getenv("GARMIN_START_DATE", None)
     if startdate is None:
