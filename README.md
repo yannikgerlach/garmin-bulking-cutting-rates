@@ -53,7 +53,7 @@ GARMIN_USERNAME=<your_garmin_username>
 GARMIN_PASSWORD=<your_garmin_password>
 ```
 
-After creating the `.env` file, you can run the code with the following command to downloaded the weight data:
+After creating the `.env` file, you can run the code with the following command to download the weight data:
 ```bash
 poetry run python scripts/download.py
 ```
@@ -65,11 +65,9 @@ Using this data, you can then process the weight data with the following command
 poetry run python scripts/process.py
 ```
 
-This stores the processed weight data in a file called `weight.csv`.
-
-You can then plot the data with the following command:
+If you want to send the plots to your email, you can add the argument `--send` to the command:
 ```bash
-poetry run python scripts/plot.py
+poetry run python scripts/process.py --send
 ```
 
 You can specify your targeted weekly weight change rate for bulking (positive) or cutting (negative) in the `.env` file:
@@ -85,4 +83,11 @@ TARGET_WEEKLY_CHANGE_PERCENTAGE=0.005
 To run everything in one go, you can use the following command:
 ```terminal
 /bin/bash run.sh
+```
+
+For settings up the email sending, you'll need to create a webhook (e.g., using [Make](https://make.com)) that takes the inputs and sends them to your email. If you don't use make you might have to adjust the code. The following environment variables need to be set for the email sending to work:
+```bash
+WEBHOOK_URL=<your_webhook_url>
+MAKE_API_KEY=<your_make_api_key>
+EMAIL=<your_email>
 ```
