@@ -2,7 +2,8 @@
 .venv
 *.csv
 *.json
-*.png
+data/
+data/*
 __pycache__/
 **/__pycache__/*
 *.pyc
