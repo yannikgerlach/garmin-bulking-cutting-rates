@@ -99,13 +99,16 @@ class DailyWeightForecaster:
         ] + pd.to_timedelta(np.arange(1, remaining_days_this_week + 1), unit="D")
 
     def _check_correctness(
-        self, target_this_week_weight, remaining_days_weight, raw_data_weight_first_days
+        self,
+        target_this_week_weight: float,
+        remaining_days_weight: pd.Series,
+        raw_data_weight_first_days: pd.Series,
     ):
         """
         Check correctness of the calculation by comparing the average
         of the targeted weights with the target weight for this week.
         """
-        targeted_weights_this_week = (
+        targeted_weights_this_week: list[float] = (
             raw_data_weight_first_days.values.tolist()
             + remaining_days_weight.values.tolist()
         )
