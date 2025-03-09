@@ -14,7 +14,9 @@ def load_and_store_gamin_data():
     garmin.login()
     garmin.garth.dump(os.getenv("GARTH_HOME", "~/.garth"))
 
-    startdate = date(2024, 11, 1).isoformat()  # to do: allow user to specify start date
+    startdate = os.getenv("GARMIN_START_DATE", None)
+    if startdate is None:
+        raise RuntimeError("Environment variable GARMIN_START_DATE is not set")
     enddate = date.today().isoformat()
 
     data = garmin.get_weigh_ins(startdate, enddate)

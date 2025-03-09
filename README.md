@@ -51,6 +51,13 @@ The `.env` file should contain the following variables:
 ```bash
 GARMIN_USERNAME=<your_garmin_username>
 GARMIN_PASSWORD=<your_garmin_password>
+GARMIN_START_DATE=<your_garmin_start_date>
+```
+
+The `GARMIN_START_DATE` should be in the format `YYYY-MM-DD`. It specifies the date from which you want to download the weight data.
+For example, if you want to download the weight data from the 1st of January 2021, you can set the following variable:
+```bash
+GARMIN_START_DATE=2021-01-01
 ```
 
 After creating the `.env` file, you can run the code with the following command to download the weight data:
