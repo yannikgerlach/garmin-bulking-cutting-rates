@@ -5,7 +5,6 @@ import seaborn as sns
 from scripts.columns import (
     DATE_COLUMN,
     WEIGHT_IN_GRAMS_7D_COLUMN,
-    WEIGHT_IN_GRAMS_14D_COLUMN,
     WEIGHT_IN_GRAMS_COLUMN,
 )
 from scripts.files import REMAINING_DAYS_WEIGHT_PNG, WEIGHT_CHANGE_PNG, WEIGHT_PNG
@@ -19,9 +18,8 @@ def plot_figures(
     df = df.drop(df.tail(1).index)
 
     plot_weight(
-        df_daily=df_daily,
         df=df,
-        last_two_rows=last_two_rows,
+        targets_df=last_two_rows.tail(1),
     )
     plot_remaining_days_weight(
         remaining_days_weight, df_daily=df_daily, last_two_rows=last_two_rows
@@ -30,56 +28,19 @@ def plot_figures(
 
 
 def plot_weight(
-    df_daily: pd.DataFrame,
     df: pd.DataFrame,
-    last_two_rows: pd.DataFrame,
+    targets_df: pd.DataFrame,
 ) -> None:
+
+    is_gaining_weight = (df["target_weight_change_14d"] > 0).any()
+    va_position_14d = "top" if is_gaining_weight else "bottom"
+    va_position_14d_offset = -100 if is_gaining_weight else 100
+    va_position_7d = "bottom" if is_gaining_weight else "top"
+    va_position_7d_offset = 100 if is_gaining_weight else -100
+
     # pylint: disable=too-many-locals, too-many-statements
     sns.set_theme(style="whitegrid")
     fig, ax = plt.subplots(figsize=(12, 6))
-
-    # plot weight_in_grams_7d (removing zeros)
-    # Create separate dataframes for 7d and 14d data, remove zeros
-    df_7d = (
-        df_daily[df_daily[WEIGHT_IN_GRAMS_7D_COLUMN] != 0][
-            [DATE_COLUMN, WEIGHT_IN_GRAMS_7D_COLUMN]
-        ]
-        .tail(7)
-        .copy()
-    )
-    df_14d = (
-        df_daily[df_daily[WEIGHT_IN_GRAMS_14D_COLUMN] != 0][
-            [DATE_COLUMN, WEIGHT_IN_GRAMS_14D_COLUMN]
-        ]
-        .tail(7)
-        .copy()
-    )
-
-    # Plot each series
-    df_7d_last = df_7d.tail(1)
-
-    line_7d = sns.lineplot(
-        data=df_7d,
-        x=DATE_COLUMN,
-        y=WEIGHT_IN_GRAMS_7D_COLUMN,
-        marker="o",
-        ax=ax,
-        label="7d",
-    )
-    color_7d = line_7d.get_lines()[-1].get_color()
-    for x_val, y_val in zip(
-        df_7d_last[DATE_COLUMN], df_7d_last[WEIGHT_IN_GRAMS_7D_COLUMN]
-    ):
-        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=color_7d)
-
-    line_14d = sns.lineplot(
-        data=df_14d,
-        x=DATE_COLUMN,
-        y=WEIGHT_IN_GRAMS_14D_COLUMN,
-        marker="o",
-        ax=ax,
-        label="14d",
-    )
 
     # First plot all 14d data
     sns.lineplot(
@@ -93,7 +54,12 @@ def plot_weight(
     line_14d = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_14d_weekly"]):
         ax.text(
-            x_val, y_val, y_val, ha="center", va="bottom", color=line_14d.get_color()
+            x_val,
+            y_val + va_position_14d_offset,
+            y_val,
+            ha="center",
+            va=va_position_14d,
+            color=line_14d.get_color(),
         )
 
     sns.lineplot(
@@ -107,12 +73,17 @@ def plot_weight(
     line_7d = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_7d_weekly"]):
         ax.text(
-            x_val, y_val, y_val, ha="center", va="bottom", color=line_7d.get_color()
+            x_val,
+            y_val + va_position_7d_offset,
+            y_val,
+            ha="center",
+            va=va_position_7d,
+            color=line_7d.get_color(),
         )
 
     # Plot only the last 2 values of each column
     sns.scatterplot(
-        data=last_two_rows,
+        data=targets_df,
         x=DATE_COLUMN,
         y="target_weight_14d",
         color=line_14d.get_color(),
@@ -120,9 +91,7 @@ def plot_weight(
         label="Target Weekly 14d",
         marker="x",
     )
-    for x_val, y_val in zip(
-        last_two_rows[DATE_COLUMN], last_two_rows["target_weight_14d"]
-    ):
+    for x_val, y_val in zip(targets_df[DATE_COLUMN], targets_df["target_weight_14d"]):
         ax.text(
             x_val,
             y_val,
@@ -134,7 +103,7 @@ def plot_weight(
         )
 
     sns.scatterplot(
-        data=last_two_rows,
+        data=targets_df,
         x=DATE_COLUMN,
         y="target_weight_7d",
         color=line_7d.get_color(),
@@ -142,9 +111,7 @@ def plot_weight(
         label="Target Weekly 7d",
         marker="x",
     )
-    for x_val, y_val in zip(
-        last_two_rows[DATE_COLUMN], last_two_rows["target_weight_7d"]
-    ):
+    for x_val, y_val in zip(targets_df[DATE_COLUMN], targets_df["target_weight_7d"]):
         ax.text(
             x_val,
             y_val,
