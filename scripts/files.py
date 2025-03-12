@@ -26,9 +26,7 @@ def get_full_storage_path(filename: str) -> str:
     return os.path.join(get_storage_directory(), filename)
 
 
-RAW_DATA_FILE = get_full_storage_path("weight_raw.json")
-DAILY_DATA_FILE = get_full_storage_path("weight_daily.csv")
-WEEKLY_DATA_FILE = get_full_storage_path("weight.csv")
+RAW_DATA_FILE = get_full_storage_path("weight.json")
 
 WEIGHT_CHANGE_PNG = get_full_storage_path("weight_change.png")
 WEIGHT_PNG = get_full_storage_path("weight.png")

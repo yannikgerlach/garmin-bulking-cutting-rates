@@ -55,7 +55,7 @@ def plot_weight(
         y="weight_in_grams_14d_weekly",
         marker="o",
         ax=ax,
-        label="14d Weekly",
+        label="14d Weight Average Weekly",
         color=COLOR_WEIGHT_14D_AVERAGE,
     )
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_14d_weekly"]):
@@ -74,7 +74,7 @@ def plot_weight(
         y="weight_in_grams_7d_weekly",
         marker="o",
         ax=ax,
-        label="7d Weekly",
+        label="7d Weight Average Weekly",
         color=COLOR_WEIGHT_7D_AVERAGE,
     )
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_7d_weekly"]):
@@ -94,7 +94,7 @@ def plot_weight(
         y="target_weight_14d",
         color=COLOR_WEIGHT_14D_AVERAGE,
         ax=ax,
-        label="Target Weekly 14d",
+        label="Weekly Target 14d Weight Average",
         marker="x",
     )
     for x_val, y_val in zip(targets_df[DATE_COLUMN], targets_df["target_weight_14d"]):
@@ -114,7 +114,7 @@ def plot_weight(
         y="target_weight_7d",
         color=COLOR_WEIGHT_7D_AVERAGE,
         ax=ax,
-        label="Target Weekly 7d",
+        label="Weekly Target 7d Weight Average",
         marker="x",
     )
     for x_val, y_val in zip(targets_df[DATE_COLUMN], targets_df["target_weight_7d"]):
@@ -127,6 +127,11 @@ def plot_weight(
             color=COLOR_WEIGHT_7D_AVERAGE,
             style="italic",
         )
+
+    ax.set_title("Weekly Weight and Targets")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Weight in Grams")
+    ax.legend()
 
     # save the plot
     fig.tight_layout()
@@ -291,7 +296,7 @@ def plot_remaining_days_weight(
             color=COLOR_WEIGHT_14D_AVERAGE,
             style="italic",
         )
-    # add the title
+
     ax.set_title("Detailed Weight and Remaining Days Weight")
     ax.set_xlabel("Date")
     ax.set_ylabel("Weight in Grams")
@@ -312,7 +317,7 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
         y="weight_in_grams_14d_weekly_change",
         marker="o",
         ax=ax,
-        label="14d Weekly Change",
+        label="14d Weight Average Weekly Change",
         color=COLOR_WEIGHT_14D_AVERAGE,
     )
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_14d_weekly_change"]):
@@ -331,7 +336,7 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
         y="weight_in_grams_7d_weekly_change",
         marker="o",
         ax=ax,
-        label="7d Weekly Change",
+        label="7d Weight Average Weekly Change",
         color=COLOR_WEIGHT_7D_AVERAGE,
     )
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_7d_weekly_change"]):
@@ -351,11 +356,16 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
         y="target_weight_change_14d",
         marker="o",
         ax=ax,
-        label="Target Weekly Change",
+        label="Target Weight Average Weekly Change",
         color=COLOR_RED,
     )
     for x_val, y_val in zip(df[DATE_COLUMN], df["target_weight_change_14d"]):
         ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=COLOR_RED)
+
+    ax.set_title("Weekly Weight Change")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Weight Change in Grams")
+    ax.legend()
 
     # save the plot
     fig.tight_layout()
