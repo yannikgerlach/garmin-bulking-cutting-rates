@@ -10,6 +10,11 @@ from scripts.columns import (
 )
 from scripts.files import REMAINING_DAYS_WEIGHT_PNG, WEIGHT_CHANGE_PNG, WEIGHT_PNG
 
+COLOR_WEIGHT_7D_AVERAGE = "#1f77b4"
+COLOR_WEIGHT_14D_AVERAGE = "#ff7f0e"
+COLOR_RED = "#d62728"
+COLOR_MISC = "#9467bd"
+
 
 def plot_figures(
     df_daily: pd.DataFrame, df: pd.DataFrame, remaining_days_weight: pd.Series
@@ -51,8 +56,8 @@ def plot_weight(
         marker="o",
         ax=ax,
         label="14d Weekly",
+        color=COLOR_WEIGHT_14D_AVERAGE,
     )
-    line_14d = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_14d_weekly"]):
         ax.text(
             x_val,
@@ -60,7 +65,7 @@ def plot_weight(
             y_val,
             ha="center",
             va=va_position_14d,
-            color=line_14d.get_color(),
+            color=COLOR_WEIGHT_14D_AVERAGE,
         )
 
     sns.lineplot(
@@ -70,8 +75,8 @@ def plot_weight(
         marker="o",
         ax=ax,
         label="7d Weekly",
+        color=COLOR_WEIGHT_7D_AVERAGE,
     )
-    line_7d = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_7d_weekly"]):
         ax.text(
             x_val,
@@ -79,7 +84,7 @@ def plot_weight(
             y_val,
             ha="center",
             va=va_position_7d,
-            color=line_7d.get_color(),
+            color=COLOR_WEIGHT_7D_AVERAGE,
         )
 
     # Plot only the last 2 values of each column
@@ -87,7 +92,7 @@ def plot_weight(
         data=targets_df,
         x=DATE_COLUMN,
         y="target_weight_14d",
-        color=line_14d.get_color(),
+        color=COLOR_WEIGHT_14D_AVERAGE,
         ax=ax,
         label="Target Weekly 14d",
         marker="x",
@@ -99,7 +104,7 @@ def plot_weight(
             y_val,
             ha="center",
             va="bottom",
-            color=line_14d.get_color(),
+            color=COLOR_WEIGHT_14D_AVERAGE,
             style="italic",
         )
 
@@ -107,7 +112,7 @@ def plot_weight(
         data=targets_df,
         x=DATE_COLUMN,
         y="target_weight_7d",
-        color=line_7d.get_color(),
+        color=COLOR_WEIGHT_7D_AVERAGE,
         ax=ax,
         label="Target Weekly 7d",
         marker="x",
@@ -119,7 +124,7 @@ def plot_weight(
             y_val,
             ha="center",
             va="bottom",
-            color=line_7d.get_color(),
+            color=COLOR_WEIGHT_7D_AVERAGE,
             style="italic",
         )
 
@@ -162,31 +167,33 @@ def plot_remaining_days_weight(
 
     # Plot 7d average for the last 14 days
 
-    line_14d = sns.lineplot(
+    sns.lineplot(
         data=df_daily_14_days,
         x=DATE_COLUMN,
         y=WEIGHT_IN_GRAMS_7D_COLUMN,
         marker="o",
         ax=ax,
         label="7d Weight Average",
+        color=COLOR_WEIGHT_7D_AVERAGE,
     )
-    color_14d = line_14d.get_lines()[-1].get_color()
     df_14d_last = df_daily_14_days.tail(1)
     for x_val, y_val in zip(
         df_14d_last[DATE_COLUMN], df_14d_last[WEIGHT_IN_GRAMS_7D_COLUMN]
     ):
-        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=color_14d)
+        ax.text(
+            x_val, y_val, y_val, ha="center", va="bottom", color=COLOR_WEIGHT_7D_AVERAGE
+        )
 
     # PLot the 14d average for the last 14 days
-    line_14d_14d = sns.lineplot(
+    sns.lineplot(
         data=df_daily_14d_14_days,
         x=DATE_COLUMN,
         y="weight_in_grams_14d",
         marker="o",
         ax=ax,
         label="14d Weight Average",
+        color=COLOR_WEIGHT_14D_AVERAGE,
     )
-    color_14d_14d = line_14d_14d.get_lines()[-1].get_color()
     df_14d_14d_last = df_daily_14d_14_days.tail(1)
     for x_val, y_val in zip(
         df_14d_14d_last[DATE_COLUMN], df_14d_14d_last[WEIGHT_IN_GRAMS_14D_COLUMN]
@@ -197,7 +204,7 @@ def plot_remaining_days_weight(
             y_val,
             ha="center",
             va="bottom",
-            color=color_14d_14d,
+            color=COLOR_WEIGHT_14D_AVERAGE,
         )
 
     # plot the raw data for the last 14 days
@@ -208,15 +215,17 @@ def plot_remaining_days_weight(
         marker="o",
         ax=ax,
         label="Daily Weight",
+        color=COLOR_MISC,
     )
-    color_raw_data = ax.lines[-1].get_color()
 
     # add the latest value as text -> current day weight
     df_raw_data_last = df_raw_data_14_days.tail(1)
     for x_val, y_val in zip(
         df_raw_data_last[DATE_COLUMN], df_raw_data_last[WEIGHT_IN_GRAMS_COLUMN]
     ):
-        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=color_raw_data)
+        ax.text(
+            x_val, y_val, y_val, ha="center", va="bottom", color=COLOR_WEIGHT_7D_AVERAGE
+        )
         break
 
     # plot the remaining days weight
@@ -225,7 +234,7 @@ def plot_remaining_days_weight(
         marker="o",
         ax=ax,
         label="Remaining Days Weight",
-        color="red",
+        color=COLOR_RED,
     )
     # add the values
     for x_val, y_val in zip(remaining_days_weight.index, remaining_days_weight.values):
@@ -237,7 +246,7 @@ def plot_remaining_days_weight(
             y_val,
             ha="center",
             va="bottom",
-            color="red",
+            color=COLOR_RED,
         )
 
     # add target weight 7d
@@ -246,7 +255,7 @@ def plot_remaining_days_weight(
         data=last_row,
         x=DATE_COLUMN,
         y="target_weight_7d",
-        color=color_14d,
+        color=COLOR_WEIGHT_7D_AVERAGE,
         ax=ax,
         label="7d Target Weekly",
         marker="x",
@@ -258,7 +267,7 @@ def plot_remaining_days_weight(
             y_val,
             ha="center",
             va="bottom",
-            color=color_14d,
+            color=COLOR_WEIGHT_7D_AVERAGE,
             style="italic",
         )
 
@@ -267,7 +276,7 @@ def plot_remaining_days_weight(
         data=last_row,
         x=DATE_COLUMN,
         y="target_weight_14d",
-        color=color_14d_14d,
+        color=COLOR_WEIGHT_14D_AVERAGE,
         ax=ax,
         label="14d Target Weekly",
         marker="x",
@@ -279,7 +288,7 @@ def plot_remaining_days_weight(
             y_val,
             ha="center",
             va="bottom",
-            color=color_14d_14d,
+            color=COLOR_WEIGHT_14D_AVERAGE,
             style="italic",
         )
     # add the title
@@ -294,7 +303,6 @@ def plot_remaining_days_weight(
 
 def plot_weekly_change(df: pd.DataFrame) -> None:
     # pylint: disable=too-many-locals, too-many-statements
-    # plot the weekly change separately
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -305,8 +313,8 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
         marker="o",
         ax=ax,
         label="14d Weekly Change",
+        color=COLOR_WEIGHT_14D_AVERAGE,
     )
-    line_14d_change = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_14d_weekly_change"]):
         ax.text(
             x_val,
@@ -314,7 +322,7 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
             y_val,
             ha="center",
             va="bottom",
-            color=line_14d_change.get_color(),
+            color=COLOR_WEIGHT_14D_AVERAGE,
         )
 
     sns.lineplot(
@@ -324,8 +332,8 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
         marker="o",
         ax=ax,
         label="7d Weekly Change",
+        color=COLOR_WEIGHT_7D_AVERAGE,
     )
-    line_7d_change = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["weight_in_grams_7d_weekly_change"]):
         ax.text(
             x_val,
@@ -333,7 +341,7 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
             y_val,
             ha="center",
             va="bottom",
-            color=line_7d_change.get_color(),
+            color=COLOR_WEIGHT_7D_AVERAGE,
         )
 
     # add line plot for target weekly change (column target_weight_change)
@@ -344,13 +352,10 @@ def plot_weekly_change(df: pd.DataFrame) -> None:
         marker="o",
         ax=ax,
         label="Target Weekly Change",
-        color="red",
+        color=COLOR_RED,
     )
-    line_target = ax.lines[-1]
     for x_val, y_val in zip(df[DATE_COLUMN], df["target_weight_change_14d"]):
-        ax.text(
-            x_val, y_val, y_val, ha="center", va="bottom", color=line_target.get_color()
-        )
+        ax.text(x_val, y_val, y_val, ha="center", va="bottom", color=COLOR_RED)
 
     # save the plot
     fig.tight_layout()
