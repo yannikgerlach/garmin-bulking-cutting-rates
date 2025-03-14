@@ -24,7 +24,7 @@ If you're looking for a comprehensive guide on bulking and cutting, I highly rec
 ## Examples
 
 ### Weight Data Overview
-The following plot shows an example of the weekly and two-weekly averages of the weight data. The blue line represents the weekly average, and the orange line represents the two-weekly average.
+The following plot shows an example of the weekly and two-weekly averages of the weight data. The blue line represents the weekly 7 day average, and the orange line represents the weekly 14 day average.
 
 [![Weight Data Overview](docs/images/weight_overview_example.png)](docs/images/weight_overview_example.png)
 
@@ -45,7 +45,7 @@ To install the dependencies, run the following command:
 poetry install
 ```
 
-## Usage
+### Usage
 You need a Garmin account with weight data to use this repository.
 
 To use the code, you need to create a `.env` file in the root directory of this repository.
@@ -94,7 +94,7 @@ To run everything in one go, you can use the following command:
 /bin/bash run.sh
 ```
 
-For settings up the email sending, you'll need to create a webhook (e.g., using [Make](https://make.com)) that takes the inputs and sends them to your email. If you don't use make you might have to adjust the code. The following environment variables need to be set for the email sending to work:
+For setting up the email sending, you'll need to create a webhook (e.g., using [Make](https://make.com)) that takes the inputs and sends them to your email. If you don't use Make you might have to adjust the code. The following environment variables need to be set for the email sending to work:
 ```bash
 WEBHOOK_URL=<your_webhook_url>
 MAKE_API_KEY=<your_make_api_key>
