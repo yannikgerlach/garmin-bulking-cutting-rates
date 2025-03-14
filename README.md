@@ -11,6 +11,8 @@ they often lack the flexibility and depth needed to effectively track your weigh
 - They often lack the ability to compare your weight change to optimal [bulking rates](https://macrofactorapp.com/bulking-calculator/) or [cutting rates](https://macrofactorapp.com/cutting-calculator/).
 - They don't provide you with actionable insights to get you on track for hitting your bulking or cutting goals.
 
+If you're looking for a comprehensive guide on bulking and cutting, I highly recommend reading *Bigger Leaner Stronger* by Michael Matthews. This book provides detailed information on nutrition, exercise, and mindset to help you achieve your fitness goals.
+
 ## Features
 - **Download Weight Data**: Download your raw weight data from Garmin Connect using the [garminconnect](https://pypi.org/project/garminconnect/) package.
 - **Weekly and Two-Weekly Averages**: Calculate weekly and two-weekly averages of the weight data to smooth out daily fluctuations.
@@ -22,7 +24,7 @@ they often lack the flexibility and depth needed to effectively track your weigh
 ## Examples
 
 ### Weight Data Overview
-The following plot shows an example of the weekly and two-weekly averages of the weight data. The red line represents the weekly average, and the green line represents the two-weekly average.
+The following plot shows an example of the weekly and two-weekly averages of the weight data. The blue line represents the weekly 7 day average, and the orange line represents the weekly 14 day average.
 
 [![Weight Data Overview](docs/images/weight_overview_example.png)](docs/images/weight_overview_example.png)
 
@@ -32,7 +34,7 @@ The following plot shows an example of the weight change per week based on the w
 [![Weight Change per Week](docs/images/weight_change_example.png)](docs/images/weight_change_example.png)
 
 ### Weekly Overview & Daily Targets
-The following plot shows an example of the weekly overview and daily targets. The blue line shows the weekly weight average (including the target for the week) and the orange line shows the raw daily weights. The red line indicates the raw daily weights you need to hit to reach your targeted weekly weight change rate.
+The following plot shows an example of the weekly overview and daily targets. The blue line shows the 7 day weight average and the orange line shows the 14 day weight average (both including the target for the week). The purple line shows the raw daily weights. The red line indicates the raw daily weights you need to hit to reach your targeted 7 day weight.
 
 [![Weekly Overview & Daily Targets](docs/images/weekly_overview_example.png)](docs/images/weekly_overview_example.png)
 
@@ -43,7 +45,7 @@ To install the dependencies, run the following command:
 poetry install
 ```
 
-## Usage
+### Usage
 You need a Garmin account with weight data to use this repository.
 
 To use the code, you need to create a `.env` file in the root directory of this repository.
@@ -92,7 +94,7 @@ To run everything in one go, you can use the following command:
 /bin/bash run.sh
 ```
 
-For settings up the email sending, you'll need to create a webhook (e.g., using [Make](https://make.com)) that takes the inputs and sends them to your email. If you don't use make you might have to adjust the code. The following environment variables need to be set for the email sending to work:
+For setting up the email sending, you'll need to create a webhook (e.g., using [Make](https://make.com)) that takes the inputs and sends them to your email. If you don't use Make you might have to adjust the code. The following environment variables need to be set for the email sending to work:
 ```bash
 WEBHOOK_URL=<your_webhook_url>
 MAKE_API_KEY=<your_make_api_key>
