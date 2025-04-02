@@ -87,7 +87,8 @@ class TestAddMovingAverageAndChange(unittest.TestCase):
 
 
 class TestProcessWeightData(unittest.TestCase):
-    def test_process_weight_data(self):
+    @patch("scripts.dataframe_creator.GarminWeightDataFrameCreator._load_data")
+    def test_process_weight_data(self, mock_load_data):
         data = {
             "dailyWeightSummaries": [
                 {"summaryDate": "2023-01-01", "allWeightMetrics": [{"weight": 70}]},
@@ -122,6 +123,7 @@ class TestProcessWeightData(unittest.TestCase):
                 {"summaryDate": "2023-01-30", "allWeightMetrics": [{"weight": 99}]},
             ]
         }
+        mock_load_data.return_value = data
 
         # data only becomes meaningful after 14 days
         expected_data = {
@@ -134,7 +136,9 @@ class TestProcessWeightData(unittest.TestCase):
             expected_data, index=pd.to_datetime(["2023-01-22", "2023-01-29"])
         ).astype("int64")
 
-        result_df = process_weight_data(data)
+        result_df = process_weight_data(
+            weight_dataframe_creator=GarminWeightDataFrameCreator()
+        )
         result_df = filter_df_to_weekly_changes(result_df)
         assert_frame_equal(result_df, expected_df, check_freq=False, check_names=False)
 
