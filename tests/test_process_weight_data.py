@@ -1,14 +1,15 @@
 import os
 import unittest
+from unittest.mock import patch
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from scripts.columns import DATE_COLUMN, WEIGHT_IN_GRAMS_COLUMN
+from scripts.dataframe_creator import GarminWeightDataFrameCreator
 from scripts.process_weight_data import (
     add_moving_average_and_change,
     add_target_weight_change,
-    create_weight_data_frame,
     filter_df_to_weekly_changes,
     process_weight_data,
 )
@@ -86,7 +87,8 @@ class TestAddMovingAverageAndChange(unittest.TestCase):
 
 
 class TestProcessWeightData(unittest.TestCase):
-    def test_process_weight_data(self):
+    @patch("scripts.dataframe_creator.GarminWeightDataFrameCreator._load_data")
+    def test_process_weight_data(self, mock_load_data):
         data = {
             "dailyWeightSummaries": [
                 {"summaryDate": "2023-01-01", "allWeightMetrics": [{"weight": 70}]},
@@ -121,6 +123,7 @@ class TestProcessWeightData(unittest.TestCase):
                 {"summaryDate": "2023-01-30", "allWeightMetrics": [{"weight": 99}]},
             ]
         }
+        mock_load_data.return_value = data
 
         # data only becomes meaningful after 14 days
         expected_data = {
@@ -133,7 +136,9 @@ class TestProcessWeightData(unittest.TestCase):
             expected_data, index=pd.to_datetime(["2023-01-22", "2023-01-29"])
         ).astype("int64")
 
-        result_df = process_weight_data(data)
+        result_df = process_weight_data(
+            weight_dataframe_creator=GarminWeightDataFrameCreator()
+        )
         result_df = filter_df_to_weekly_changes(result_df)
         assert_frame_equal(result_df, expected_df, check_freq=False, check_names=False)
 
@@ -261,7 +266,8 @@ class TestAddTargetWeightChange(unittest.TestCase):
 
 
 class TestCreateWeightDataFrame(unittest.TestCase):
-    def test_create_weight_data_frame(self):
+    @patch("scripts.dataframe_creator.GarminWeightDataFrameCreator._load_data")
+    def test_create_weight_data_frame(self, mock_load_data):
         # note the two missing day data
         data = {
             "dailyWeightSummaries": [
@@ -270,6 +276,7 @@ class TestCreateWeightDataFrame(unittest.TestCase):
                 {"summaryDate": "2023-01-05", "allWeightMetrics": [{"weight": 74}]},
             ]
         }
+        mock_load_data.return_value = data
 
         expected_data = {
             DATE_COLUMN: pd.date_range(start="2023-01-01", end="2023-01-05", freq="D"),
@@ -278,5 +285,6 @@ class TestCreateWeightDataFrame(unittest.TestCase):
         expected_df = pd.DataFrame(expected_data)
         expected_df.set_index(DATE_COLUMN, inplace=True)
 
-        result_df = create_weight_data_frame(data)
+        weight_dataframe_creator = GarminWeightDataFrameCreator()
+        result_df = weight_dataframe_creator.get_dataframe()
         assert_frame_equal(result_df, expected_df, check_freq=False, check_names=False)

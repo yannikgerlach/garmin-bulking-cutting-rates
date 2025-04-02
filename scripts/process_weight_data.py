@@ -3,11 +3,37 @@ import os
 import pandas as pd
 
 from scripts.columns import (
-    DATE_COLUMN,
     WEIGHT_IN_GRAMS_7D_COLUMN,
     WEIGHT_IN_GRAMS_14D_COLUMN,
     WEIGHT_IN_GRAMS_COLUMN,
 )
+from scripts.dataframe_creator import WeightDataFrameCreator
+
+
+def process_weight_data(
+    weight_dataframe_creator: WeightDataFrameCreator,
+) -> pd.DataFrame:
+    """
+    Processes daily weight data and returns a DataFrame of interpolated weights with moving averages.
+
+    Steps:
+    1. Extracts and rounds daily weight data.
+    2. Resamples daily dates and interpolates missing weights.
+    3. Adds 7-day and 14-day moving averages and their weekly changes.
+    4. Removes the original weight columns, retaining only entries with non-null 14-day weekly changes.
+
+    Args:
+        weight_dataframe_creator: To get a dataframe with daily weight measurements.
+
+    Returns:
+        pd.DataFrame: A DataFrame indexed by date with integer weight changes and averages for analysis.
+    """
+    df = weight_dataframe_creator.get_dataframe()
+
+    add_moving_average_and_change(df=df, column=WEIGHT_IN_GRAMS_COLUMN, window=7)
+    add_moving_average_and_change(df=df, column=WEIGHT_IN_GRAMS_COLUMN, window=14)
+
+    return df
 
 
 def add_moving_average_and_change(df: pd.DataFrame, column: str, window: int) -> None:
@@ -37,53 +63,6 @@ def add_moving_average_and_change(df: pd.DataFrame, column: str, window: int) ->
     df[f"{column}_{window}d_weekly_change"] = df[f"{column}_{window}d_weekly"].diff(
         periods=7
     )
-
-
-def create_weight_data_frame(data: dict) -> pd.DataFrame:
-    data_weight = data["dailyWeightSummaries"]
-    daily_weights = [
-        (d["summaryDate"], round(d["allWeightMetrics"][0]["weight"]))
-        for d in data_weight
-    ]
-    df = pd.DataFrame(daily_weights, columns=[DATE_COLUMN, WEIGHT_IN_GRAMS_COLUMN])
-
-    # fill in missing dates
-    df[DATE_COLUMN] = pd.to_datetime(df[DATE_COLUMN])
-    df.set_index(DATE_COLUMN, inplace=True)
-    df = df.resample("D").asfreq()
-    df[WEIGHT_IN_GRAMS_COLUMN] = (
-        df[WEIGHT_IN_GRAMS_COLUMN].interpolate(method="linear").round().astype(int)
-    )
-
-    return df
-
-
-def process_weight_data(data: dict) -> pd.DataFrame:
-    """
-    Processes daily weight data and returns a DataFrame of interpolated weights with moving averages.
-
-    This function expects a dictionary containing a "dailyWeightSummaries" key, where each item includes:
-     - "summaryDate": A string representing the date.
-     - "allWeightMetrics": A list of dictionaries with a "weight" key, specifying weight in grams.
-
-    Steps:
-    1. Extracts and rounds daily weight data.
-    2. Resamples daily dates and interpolates missing weights.
-    3. Adds 7-day and 14-day moving averages and their weekly changes.
-    4. Removes the original weight columns, retaining only entries with non-null 14-day weekly changes.
-
-    Args:
-        data (dict): A dictionary containing Garmin daily weight summaries.
-
-    Returns:
-        pd.DataFrame: A DataFrame indexed by date with integer weight changes and averages for analysis.
-    """
-    df = create_weight_data_frame(data)
-
-    add_moving_average_and_change(df=df, column=WEIGHT_IN_GRAMS_COLUMN, window=7)
-    add_moving_average_and_change(df=df, column=WEIGHT_IN_GRAMS_COLUMN, window=14)
-
-    return df
 
 
 def filter_df_to_weekly_changes(df: pd.DataFrame) -> pd.DataFrame:
