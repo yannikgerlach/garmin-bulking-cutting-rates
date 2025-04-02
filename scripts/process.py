@@ -1,5 +1,3 @@
-import json
-
 import pandas as pd
 
 from scripts.columns import (
@@ -8,7 +6,7 @@ from scripts.columns import (
     WEIGHT_IN_GRAMS_14D_COLUMN,
     WEIGHT_IN_GRAMS_COLUMN,
 )
-from scripts.files import RAW_DATA_FILE
+from scripts.dataframe_creator import GarminWeightDataFrameCreator
 from scripts.plot import plot_figures
 from scripts.predictions import DailyWeightForecaster
 from scripts.process_weight_data import (
@@ -56,10 +54,9 @@ def process_daily_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def process(send_plots: bool = False) -> None:
-    with open(RAW_DATA_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    df_weight_data = process_weight_data(data)
+    df_weight_data = process_weight_data(
+        weight_dataframe_creator=GarminWeightDataFrameCreator()
+    )
     df_daily_data = process_daily_data(df_weight_data.copy())
     df_weekly_data = process_weekly_data(df_weight_data.copy())
 
