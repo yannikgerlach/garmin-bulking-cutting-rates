@@ -37,7 +37,6 @@ def plot_weight(
     df: pd.DataFrame,
     targets_df: pd.DataFrame,
 ) -> None:
-
     is_gaining_weight = (df["target_weight_change_14d"] > 0).any()
     va_position_14d = "top" if is_gaining_weight else "bottom"
     va_position_14d_offset = -100 if is_gaining_weight else 100
