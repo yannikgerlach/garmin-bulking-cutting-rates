@@ -17,6 +17,9 @@ from scripts.process_weight_data import (
 from scripts.send import send
 
 
+MINIMUM_FULL_WEEK_DAYS = 21  # 3 weeks of data
+
+
 def process_weekly_data(df: pd.DataFrame) -> pd.DataFrame:
     df_weekly = filter_df_to_weekly_changes(df)
 
@@ -60,8 +63,8 @@ def process(send_plots: bool = False) -> None:
     df_daily_data = process_daily_data(df_weight_data.copy())
 
     # There need to be at least three full (Monday to Sunday) weeks of data
-    number_days_this_week = df_daily_data[DATE_COLUMN].dt.isocalendar().day.iloc[-1]
-    minimum_required_days = 21 + number_days_this_week
+    completed_days_this_week = df_daily_data[DATE_COLUMN].dt.isocalendar().day.iloc[-1]
+    minimum_required_days = MINIMUM_FULL_WEEK_DAYS + completed_days_this_week
     if len(df_daily_data) < minimum_required_days:
         print(
             f"Not enough data to process. Required: {minimum_required_days}, Available: {len(df_daily_data)}"
