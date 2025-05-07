@@ -17,6 +17,9 @@ from scripts.process_weight_data import (
 from scripts.send import send
 
 
+MINIMUM_FULL_WEEK_DAYS = 21  # 3 weeks of data
+
+
 def process_weekly_data(df: pd.DataFrame) -> pd.DataFrame:
     df_weekly = filter_df_to_weekly_changes(df)
 
@@ -58,6 +61,16 @@ def process(send_plots: bool = False) -> None:
         weight_dataframe_creator=GarminWeightDataFrameCreator()
     )
     df_daily_data = process_daily_data(df_weight_data.copy())
+
+    # There need to be at least three full (Monday to Sunday) weeks of data
+    completed_days_this_week = df_daily_data[DATE_COLUMN].dt.isocalendar().day.iloc[-1]
+    minimum_required_days = MINIMUM_FULL_WEEK_DAYS + completed_days_this_week
+    if len(df_daily_data) < minimum_required_days:
+        print(
+            f"Not enough data to process. Required: {minimum_required_days}, Available: {len(df_daily_data)}"
+        )
+        return
+
     df_weekly_data = process_weekly_data(df_weight_data.copy())
 
     weight_today = df_daily_data[WEIGHT_IN_GRAMS_COLUMN].iloc[-1]
